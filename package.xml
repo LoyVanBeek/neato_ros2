@@ -7,6 +7,8 @@
   <maintainer email="loy.vanbeek@gmail.com">loy</maintainer>
   <license>MIT</license>
 
+  <depend>python3-serial</depend>
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
