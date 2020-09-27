@@ -15,8 +15,8 @@ setup(
     zip_safe=True,
     maintainer='loy',
     maintainer_email='loy.vanbeek@gmail.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Interface to Neato vacuumrobots',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
