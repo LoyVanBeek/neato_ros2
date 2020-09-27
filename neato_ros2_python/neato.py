@@ -48,7 +48,7 @@ class NeatoRobot(object):
     def set_ldsrotation(self, on: bool):
         self.write_command("setldsrotation {}".format('on' if on else 'off'))
 
-    def set_motors(self, left_dist: int, right_dist:int , speed: int):
+    def set_motors(self, left_dist: int, right_dist: int, speed: int):
         self.write_command("setmotor {l} {r} {s}"
                            .format(l=int(left_dist),
                                    r=int(right_dist),
@@ -69,8 +69,9 @@ class NeatoRobot(object):
 
     def get_laser_scan(self):
         """
-        Get the laser scan ranges in mm and the rotation speed (in RPM) of the laser scanner
-        :return:
+        Get the laser scan ranges in mm and the rotation speed (in RPM) of the laser scanner.
+
+        :return: List of distances and rotation speed
         """
         self._port.flushInput()
         self.write_command("getldsscan")
@@ -91,6 +92,7 @@ class NeatoRobot(object):
         lds_rpm = float(footer.split(',')[1])
 
         return ranges, lds_rpm
+
 
 def main():
     print('Hi from neato_ros2_python.')

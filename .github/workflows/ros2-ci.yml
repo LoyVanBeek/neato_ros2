@@ -8,4 +8,5 @@ jobs:
     - uses: ros-tooling/setup-ros@master
     - uses: ros-tooling/action-ros-ci@master
       with:
-        package-name: neato_ros2_python 
+        package-name: neato_ros2_python
+        target-ros2-distro: foxy
