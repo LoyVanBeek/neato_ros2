@@ -3,7 +3,7 @@ on: push
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
     - uses: ros-tooling/setup-ros@master
     - uses: ros-tooling/action-ros-ci@master
