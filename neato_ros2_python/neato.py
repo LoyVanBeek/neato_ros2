@@ -1,6 +1,12 @@
 import serial
+import contextlib
 import rclpy
+from rclpy.node import Node
 import time
+
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
 
 
 MOTOR_STATUS_FIELDS = [
@@ -27,6 +33,9 @@ class NeatoRobot(object):
 
         self._laser_line_count = 360
 
+        self.base_width = 0.245
+        self.max_speed = 0.300  # Meters
+
     def __del__(self):
         self._port.close()
 
@@ -46,9 +55,10 @@ class NeatoRobot(object):
         for i in range(100):
             echo = self._port.readline().decode('utf-8').strip()
             if command in echo:
+                print("Serial port synced")
                 break
             else:
-                print("Serial port not yet in sync")
+                print("Serial port not yet in sync, expected '{}', got '{}'".format(command, echo))
 
     def read_line(self):
         return self._port.readline().decode('utf-8').strip()
@@ -105,17 +115,67 @@ class NeatoRobot(object):
         return ranges, lds_rpm
 
 
-def main():
+class NeatoNode(Node):
+    def __init__(self, robot: NeatoRobot):
+        super(NeatoNode, self).__init__('neato')
+
+        self._robot = robot
+
+        self.create_publisher(LaserScan, 'scan', 1)
+        self.create_publisher(Odometry, 'odom', 1)
+
+        self._cmd_vel_sub = self.create_subscription(Twist, 'cmd_vel', self._process_cmd_vel, 10)
+
+        # TODO: Do this on a timer
+        # time.sleep(1)
+        # print(robot.get_motors())
+        # print(robot.get_laser_scan())
+
+    def _process_cmd_vel(self, twist: Twist):
+        self.get_logger().info('twist: {}'.format(twist))
+
+        x = twist.linear.x
+        th = twist.angular.z * (self._robot.base_width/2)
+        k = max(abs(x-th), abs(x+th))
+
+        self.get_logger().info('x: {}, th: {}, k: {}'.format(x, th, k))
+
+        # sending commands higher than max speed will fail
+        if k > self._robot.max_speed:
+            factor = self._robot.max_speed/k
+
+            x *= factor
+            th *= factor
+
+            self.get_logger().info('Scaling velocities down by {}: x: {}, th: {}'.format(factor, x, th))
+        left, right = x-th, x+th
+
+        speed = max(abs(left),
+                    abs(right))
+        self.get_logger().info('Motor commands: left: {}: right: {}, speed: {}'.format(left, right, speed))
+
+        self._robot.set_motors(left_dist=int(left*1000),
+                               right_dist=int(right*1000),
+                               speed=int(speed*1000))
+
+
+def main(args=None):
+    rclpy.init(args=args)
     print('Hi from neato_ros2_python.')
 
-    neato = NeatoRobot(port='/dev/ttyACM0')
+    robot = NeatoRobot(port='/dev/ttyACM0')
 
-    neato.set_testmode(True)
-    neato.set_ldsrotation(True)
-    time.sleep(1)
-    print(neato.get_motors())
-    print(neato.get_laser_scan())
+    with robot.operational():
+        node = NeatoNode(robot)
 
+        while rclpy.ok():
+            try:
+                rclpy.spin_once(node, timeout_sec=0.1)
+            except KeyboardInterrupt:
+                break
+
+    node.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
