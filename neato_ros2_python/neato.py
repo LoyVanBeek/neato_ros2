@@ -55,10 +55,11 @@ class NeatoRobot(object):
         for i in range(100):
             echo = self._port.readline().decode('utf-8').strip()
             if command in echo:
-                print("Serial port synced")
+                # print("Serial port synced")
                 break
             else:
-                print("Serial port not yet in sync, expected '{}', got '{}'".format(command, echo))
+                # print("Serial port not yet in sync, expected '{}', got '{}'".format(command, echo))
+                pass
 
     def read_line(self):
         return self._port.readline().decode('utf-8').strip()
@@ -132,13 +133,13 @@ class NeatoNode(Node):
         # print(robot.get_laser_scan())
 
     def _process_cmd_vel(self, twist: Twist):
-        self.get_logger().info('twist: {}'.format(twist))
+        self.get_logger().debug('twist: {}'.format(twist))
 
         x = twist.linear.x
         th = twist.angular.z * (self._robot.base_width/2)
         k = max(abs(x-th), abs(x+th))
 
-        self.get_logger().info('x: {}, th: {}, k: {}'.format(x, th, k))
+        self.get_logger().debug('x: {}, th: {}, k: {}'.format(x, th, k))
 
         # sending commands higher than max speed will fail
         if k > self._robot.max_speed:
@@ -147,12 +148,12 @@ class NeatoNode(Node):
             x *= factor
             th *= factor
 
-            self.get_logger().info('Scaling velocities down by {}: x: {}, th: {}'.format(factor, x, th))
+            self.get_logger().debug('Scaling velocities down by {}: x: {}, th: {}'.format(factor, x, th))
         left, right = x-th, x+th
 
         speed = max(abs(left),
                     abs(right))
-        self.get_logger().info('Motor commands: left: {}: right: {}, speed: {}'.format(left, right, speed))
+        self.get_logger().debug('Motor commands: left: {}: right: {}, speed: {}'.format(left, right, speed))
 
         self._robot.set_motors(left_dist=int(left*1000),
                                right_dist=int(right*1000),
