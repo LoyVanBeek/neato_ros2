@@ -30,6 +30,17 @@ class NeatoRobot(object):
     def __del__(self):
         self._port.close()
 
+    @contextlib.contextmanager
+    def operational(self):
+        self.set_testmode(True)
+        self.set_ldsrotation(True)
+
+        yield
+
+        self.set_ldsrotation(False)
+        self.set_testmode(False)
+
+
     def write_command(self, command: str):
         self._port.write("{}\n".format(command).encode('utf-8'))
         for i in range(100):
