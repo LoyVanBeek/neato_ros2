@@ -3,7 +3,8 @@ import contextlib
 import rclpy
 from rclpy.node import Node, ParameterDescriptor
 from rcl_interfaces.msg import ParameterType
-import tf2_py
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_broadcaster import TransformBroadcaster
 import time
 import logging
 import numpy as np
@@ -166,7 +167,7 @@ class NeatoNode(Node):
 
         self._scan_pub = self.create_publisher(LaserScan, 'scan', 1)
         self._odom_pub = self.create_publisher(Odometry, 'odom', 1)
-        self._tf_buffer = tf2_py.BufferCore()
+        self._tf_broadcaster = TransformBroadcaster(self)
 
         self._cmd_vel_sub = self.create_subscription(Twist, 'cmd_vel', self._process_cmd_vel, 1)
 
@@ -282,7 +283,7 @@ class NeatoNode(Node):
         self._bl_tf.transform.translation.y = self.y
         self._bl_tf.transform.rotation = quaternion
 
-        self._tf_buffer.set_transform(self._bl_tf, self.get_name())
+        self._tf_broadcaster.sendTransform(self._bl_tf)
 
         self.get_logger().debug("tock")
 
