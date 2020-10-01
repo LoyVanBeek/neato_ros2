@@ -1,3 +1,7 @@
+from std_msgs.msg import Header
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Twist, Quaternion, TransformStamped
 import serial
 import contextlib
 import rclpy
@@ -10,11 +14,6 @@ import logging
 import numpy as np
 
 logging.basicConfig(level=logging.INFO)
-
-from geometry_msgs.msg import Twist, Quaternion, TransformStamped
-from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan
-from std_msgs.msg import Header
 
 
 MOTOR_STATUS_FIELDS = [
@@ -62,7 +61,6 @@ class NeatoRobot(object):
         self._port.flushOutput()
         self._port.flushInput()
 
-
     def write_command(self, command: str, retries=100):
         if retries:
             logging.debug("Commanding '{}'".format(command))
@@ -72,17 +70,21 @@ class NeatoRobot(object):
             logging.debug("echo '{}'".format(echo_raw))
             echo = echo_raw.decode('ascii').strip()
             if command in echo:
-                logging.debug("Serial port synced: written '{}' & got '{}'".format(command, echo))
+                logging.debug(
+                    "Serial port synced: written '{}' & got '{}'".format(
+                        command, echo))
                 logging.debug("Command written")
                 return True
             elif "Unknown Cmd" in echo:
                 logging.debug("Error: unknown command '{}'".format(echo))
-                return self.write_command(command, retries=retries-1)
+                return self.write_command(command, retries=retries - 1)
             elif "Ambiguous Cmd" in echo:
                 logging.debug("Error: ambiguous command '{}'".format(echo))
-                return self.write_command(command, retries=retries-1)
+                return self.write_command(command, retries=retries - 1)
             else:
-                logging.debug("Serial port not yet in sync, expected '{}', got '{}'".format(command, echo))
+                logging.debug(
+                    "Serial port not yet in sync, expected '{}', got '{}'".format(
+                        command, echo))
                 return self.write_command(command, retries=retries - 1)
         else:
             return False
@@ -98,7 +100,9 @@ class NeatoRobot(object):
         assert self.write_command("testmode {}".format('on' if on else 'off'))
 
     def set_ldsrotation(self, on: bool):
-        assert self.write_command("setldsrotation {}".format('on' if on else 'off'))
+        assert self.write_command(
+            "setldsrotation {}".format(
+                'on' if on else 'off'))
 
     def set_motors(self, left_dist: int, right_dist: int, speed: int):
         assert self.write_command("setmotor {l} {r} {s}"
@@ -169,20 +173,25 @@ class NeatoNode(Node):
         self._odom_pub = self.create_publisher(Odometry, 'odom', 1)
         self._tf_broadcaster = TransformBroadcaster(self)
 
-        self._cmd_vel_sub = self.create_subscription(Twist, 'cmd_vel', self._process_cmd_vel, 1)
+        self._cmd_vel_sub = self.create_subscription(
+            Twist, 'cmd_vel', self._process_cmd_vel, 1)
 
         self.motor_commands = {'left_dist': 0,
                                'right_dist': 0,
                                'speed': 0}
 
-        self.declare_parameter('frame_id', 'laser_link',
-                               ParameterDescriptor(type=ParameterType.PARAMETER_STRING,
-                                                   description='Frame ID for the laser'))
+        self.declare_parameter(
+            'frame_id',
+            'laser_link',
+            ParameterDescriptor(
+                type=ParameterType.PARAMETER_STRING,
+                description='Frame ID for the laser'))
         scan_link = self.get_parameter_or('frame_id').value
         self._scan = LaserScan(header=Header(frame_id=scan_link))
         self._scan.angle_min = 0.0
         self._scan.angle_max = np.pi * 2
-        self._scan.angle_increment = (self._scan.angle_max - self._scan.angle_min) / 360.0
+        self._scan.angle_increment = (
+            self._scan.angle_max - self._scan.angle_min) / 360.0
         self._scan.range_min = 0.020
         self._scan.range_max = 5.0
 
@@ -192,7 +201,7 @@ class NeatoNode(Node):
                               child_frame_id='base_link')
 
         self._bl_tf = TransformStamped(header=Header(frame_id="odom"),
-                                       child_frame_id = 'base_link')
+                                       child_frame_id='base_link')
         self._bl_tf.transform.translation.x = 0.0
         self._bl_tf.transform.translation.y = 0.0
         self._bl_tf.transform.translation.z = 0.0
@@ -205,24 +214,28 @@ class NeatoNode(Node):
         self.get_logger().debug('twist: {}'.format(twist))
 
         x = twist.linear.x
-        th = twist.angular.z * (self._robot.base_width/2)
-        k = max(abs(x-th), abs(x+th))
+        th = twist.angular.z * (self._robot.base_width / 2)
+        k = max(abs(x - th), abs(x + th))
 
         self.get_logger().debug('x: {}, th: {}, k: {}'.format(x, th, k))
 
         # sending commands higher than max speed will fail
         if k > self._robot.max_speed:
-            factor = self._robot.max_speed/k
+            factor = self._robot.max_speed / k
 
             x *= factor
             th *= factor
 
-            self.get_logger().debug('Scaling velocities down by {}: x: {}, th: {}'.format(factor, x, th))
-        left, right = x-th, x+th
+            self.get_logger().debug(
+                'Scaling velocities down by {}: x: {}, th: {}'.format(
+                    factor, x, th))
+        left, right = x - th, x + th
 
         speed = max(abs(left),
                     abs(right))
-        self.get_logger().debug('Motor commands: left: {}: right: {}, speed: {}'.format(left, right, speed))
+        self.get_logger().debug(
+            'Motor commands: left: {}: right: {}, speed: {}'.format(
+                left, right, speed))
 
         self.motor_commands = {'left_dist': int(left * 1000),
                                'right_dist': int(right * 1000),
@@ -248,8 +261,10 @@ class NeatoNode(Node):
         self._scan.header.stamp = now.to_msg()
         self._scan_pub.publish(self._scan)
 
-        d_left = (motor_state['LeftWheel_PositionInMM'] - self._encoders[0]) / 1000.0
-        d_right = (motor_state['RightWheel_PositionInMM'] - self._encoders[1]) / 1000.0
+        d_left = (motor_state['LeftWheel_PositionInMM'] -
+                  self._encoders[0]) / 1000.0
+        d_right = (
+            motor_state['RightWheel_PositionInMM'] - self._encoders[1]) / 1000.0
         self._encoders = [motor_state['LeftWheel_PositionInMM'],
                           motor_state['RightWheel_PositionInMM']]
 
@@ -312,6 +327,7 @@ def main(args=None):
 
     node.destroy_node()
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
