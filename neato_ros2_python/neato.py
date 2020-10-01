@@ -28,7 +28,6 @@ MOTOR_STATUS_FIELDS = [
 class NeatoRobot(object):
     def __init__(self, port='/dev/ttyACM0', baudrate=115200):
         self._port = serial.Serial(port, baudrate, timeout=0.1)
-
         self._motor_state = None
 
         self._laser_line_count = 360
@@ -41,6 +40,9 @@ class NeatoRobot(object):
 
     @contextlib.contextmanager
     def operational(self):
+        self._port.flushInput()
+        self._port.flushOutput()
+
         self.set_testmode(True)
         self.set_ldsrotation(True)
 
@@ -49,48 +51,68 @@ class NeatoRobot(object):
         self.set_ldsrotation(False)
         self.set_testmode(False)
 
+        self._port.flushOutput()
+        self._port.flushInput()
 
-    def write_command(self, command: str):
-        self._port.flush()
-        self._port.write("{}\n".format(command).encode('ascii'))
-        for i in range(100):
-            print("Readback attempt {}".format(i))
+
+    def write_command(self, command: str, retries=100):
+        if retries:
+            print("Commanding '{}'".format(command))
+            self._port.write("{}\n".format(command).encode('ascii'))
+
             echo_raw = self._port.readline()
-            print(" echo '{}'".format(echo_raw))
+            print("echo '{}'".format(echo_raw))
             echo = echo_raw.decode('ascii').strip()
             if command in echo:
                 print("Serial port synced: written '{}' & got '{}'".format(command, echo))
-                break
+                print("Command written")
+                return True
             elif "Unknown Cmd" in echo:
                 print("Error: unknown command '{}'".format(echo))
+                return self.write_command(command, retries=retries-1)
             elif "Ambiguous Cmd" in echo:
                 print("Error: ambiguous command '{}'".format(echo))
+                return self.write_command(command, retries=retries-1)
             else:
                 print("Serial port not yet in sync, expected '{}', got '{}'".format(command, echo))
-                pass
-        print("Command written")
+                return self.write_command(command, retries=retries - 1)
+        else:
+            return False
 
     def read_line(self):
-        return self._port.readline().decode('ascii').strip()
+        raw = self._port.readline()
+        _ascii = raw.decode('ascii')
+        stripped = _ascii.strip()
+        print("{} -> '{}' -> '{}'".format(raw, _ascii, stripped))
+        return stripped
 
     def set_testmode(self, on: bool):
-        self.write_command("testmode {}".format('on' if on else 'off'))
+        assert self.write_command("testmode {}".format('on' if on else 'off'))
 
     def set_ldsrotation(self, on: bool):
-        self.write_command("setldsrotation {}".format('on' if on else 'off'))
+        assert self.write_command("setldsrotation {}".format('on' if on else 'off'))
 
     def set_motors(self, left_dist: int, right_dist: int, speed: int):
-        self.write_command("setmotor {l} {r} {s}"
-                           .format(l=int(left_dist),
-                                   r=int(right_dist),
-                                   s=int(speed)))
+        assert self.write_command("setmotor {l} {r} {s}"
+                                  .format(l=int(left_dist),
+                                          r=int(right_dist),
+                                          s=int(speed)))
 
     def get_motors(self):
         # self._port.flushInput()
-        self.write_command("getmotors")
+        assert self.write_command("getmotors")
         print("Getting header...: ")
-        header = self.read_line()
-        print(header)
+        header = ''
+        for i in range(100):
+            if "Parameter" not in header:
+                header = self.read_line()
+                print(header)
+            else:
+                break
+        else:
+            print("Did not get header in time")
+            raise TimeoutError("Did not get header in time")
+        print("Got complete header, now reading  actual motor state")
         status = {}
 
         for _ in MOTOR_STATUS_FIELDS:
@@ -109,7 +131,7 @@ class NeatoRobot(object):
         :return: List of distances and rotation speed
         """
         self._port.flushInput()
-        self.write_command("getldsscan")
+        assert self.write_command("getldsscan")
 
         header = self._port.readline().decode('utf-8')
 
@@ -144,7 +166,7 @@ class NeatoNode(Node):
                                'right_dist': 0,
                                'speed': 0}
 
-        self.timer = self.create_timer(0.1, self.tick)
+        # self.timer = self.create_timer(1, self.tick)
 
     def _process_cmd_vel(self, twist: Twist):
         self.get_logger().debug('twist: {}'.format(twist))
@@ -203,6 +225,7 @@ def main(args=None):
         # rclpy.spin(node)
         while rclpy.ok():
             try:
+                node.tick()
                 rclpy.spin_once(node, timeout_sec=0.1)
             except KeyboardInterrupt:
                 break
