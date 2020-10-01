@@ -27,7 +27,7 @@ MOTOR_STATUS_FIELDS = [
 
 class NeatoRobot(object):
     def __init__(self, port='/dev/ttyACM0', baudrate=115200):
-        self._port = serial.Serial(port, baudrate)
+        self._port = serial.Serial(port, baudrate, timeout=0.1)
 
         self._motor_state = None
 
@@ -51,18 +51,27 @@ class NeatoRobot(object):
 
 
     def write_command(self, command: str):
-        self._port.write("{}\n".format(command).encode('utf-8'))
+        self._port.flush()
+        self._port.write("{}\n".format(command).encode('ascii'))
         for i in range(100):
-            echo = self._port.readline().decode('utf-8').strip()
+            print("Readback attempt {}".format(i))
+            echo_raw = self._port.readline()
+            print(" echo '{}'".format(echo_raw))
+            echo = echo_raw.decode('ascii').strip()
             if command in echo:
-                # print("Serial port synced")
+                print("Serial port synced: written '{}' & got '{}'".format(command, echo))
                 break
+            elif "Unknown Cmd" in echo:
+                print("Error: unknown command '{}'".format(echo))
+            elif "Ambiguous Cmd" in echo:
+                print("Error: ambiguous command '{}'".format(echo))
             else:
-                # print("Serial port not yet in sync, expected '{}', got '{}'".format(command, echo))
+                print("Serial port not yet in sync, expected '{}', got '{}'".format(command, echo))
                 pass
+        print("Command written")
 
     def read_line(self):
-        return self._port.readline().decode('utf-8').strip()
+        return self._port.readline().decode('ascii').strip()
 
     def set_testmode(self, on: bool):
         self.write_command("testmode {}".format('on' if on else 'off'))
@@ -77,13 +86,17 @@ class NeatoRobot(object):
                                    s=int(speed)))
 
     def get_motors(self):
-        self._port.flushInput()
+        # self._port.flushInput()
         self.write_command("getmotors")
+        print("Getting header...: ")
         header = self.read_line()
+        print(header)
         status = {}
 
         for _ in MOTOR_STATUS_FIELDS:
+            # print("Getting line...: ")
             line = self.read_line()
+            # print(line)
             parts = line.split(',')
             status[parts[0]] = int(parts[1])
         self._motor_state = status
@@ -122,15 +135,16 @@ class NeatoNode(Node):
 
         self._robot = robot
 
-        self.create_publisher(LaserScan, 'scan', 1)
-        self.create_publisher(Odometry, 'odom', 1)
+        self._scan_pub = self.create_publisher(LaserScan, 'scan', 1)
+        self._odom_pub = self.create_publisher(Odometry, 'odom', 1)
 
         self._cmd_vel_sub = self.create_subscription(Twist, 'cmd_vel', self._process_cmd_vel, 10)
 
-        # TODO: Do this on a timer
-        # time.sleep(1)
-        # print(robot.get_motors())
-        # print(robot.get_laser_scan())
+        self.motor_commands = {'left_dist': 0,
+                               'right_dist': 0,
+                               'speed': 0}
+
+        self.timer = self.create_timer(0.1, self.tick)
 
     def _process_cmd_vel(self, twist: Twist):
         self.get_logger().debug('twist: {}'.format(twist))
@@ -155,9 +169,26 @@ class NeatoNode(Node):
                     abs(right))
         self.get_logger().debug('Motor commands: left: {}: right: {}, speed: {}'.format(left, right, speed))
 
-        self._robot.set_motors(left_dist=int(left*1000),
-                               right_dist=int(right*1000),
-                               speed=int(speed*1000))
+        self.motor_commands = {'left_dist': int(left * 1000),
+                               'right_dist': int(right * 1000),
+                               'speed': int(speed * 1000)}
+
+    def tick(self):
+        self.get_logger().info("tick")
+        motor_state = self._robot.get_motors()
+
+        self.get_logger().info("tack")
+        self._robot.set_motors(**self.motor_commands)
+
+        self.get_logger().info("teck")
+        laser_ranges, laser_rpm = self._robot.get_laser_scan()
+
+        self.get_logger().info("tuck")
+        scan = LaserScan(ranges=laser_ranges)
+        scan.header.frame_id = 'scanner'
+        self._scan_pub.publish(scan)
+
+        self.get_logger().info("tock")
 
 
 def main(args=None):
@@ -169,6 +200,7 @@ def main(args=None):
     with robot.operational():
         node = NeatoNode(robot)
 
+        # rclpy.spin(node)
         while rclpy.ok():
             try:
                 rclpy.spin_once(node, timeout_sec=0.1)
