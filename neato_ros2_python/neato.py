@@ -63,26 +63,26 @@ class NeatoRobot(object):
     def write_command(self, command: str, retries=100):
         if retries:
             logging.debug('Commanding \'{}\''.format(command))
-            self._port.write('\'{}\'\n'.format(command).encode('ascii'))
+            self._port.write("{}\n".format(command).encode('ascii'))
 
             echo_raw = self._port.readline()
-            logging.debug('echo \'{}\''.format(echo_raw))
+            logging.debug("echo '{}'".format(echo_raw))
             echo = echo_raw.decode('ascii').strip()
             if command in echo:
                 logging.debug(
-                    'Serial port synced: written \'{}\' & got \'{}\''.format(
+                    "Serial port synced: written '{}' & got '{}'".format(
                         command, echo))
                 logging.debug('Command written')
                 return True
             elif "Unknown Cmd" in echo:
-                logging.debug('Error: unknown command \'{}\''.format(echo))
+                logging.debug("Error: unknown command '{}'".format(echo))
                 return self.write_command(command, retries=retries - 1)
             elif "Ambiguous Cmd" in echo:
-                logging.debug('Error: ambiguous command \'{}\''.format(echo))
+                logging.debug("Error: ambiguous command '{}'".format(echo))
                 return self.write_command(command, retries=retries - 1)
             else:
                 logging.debug(
-                    'Serial port not yet in sync, expected \'{}\', got \'{}\''.format(
+                    "Serial port not yet in sync, expected '{}', got '{}'".format(
                         command, echo))
                 return self.write_command(command, retries=retries - 1)
         else:
@@ -92,7 +92,7 @@ class NeatoRobot(object):
         raw = self._port.readline()
         _ascii = raw.decode('ascii')
         stripped = _ascii.strip()
-        logging.debug('\'{}\' -> \'{}\' -> \'{}\''.format(raw, _ascii, stripped))
+        logging.debug("'{}' -> '{}' -> '{}'".format(raw, _ascii, stripped))
         return stripped
 
     def set_testmode(self, on: bool):
