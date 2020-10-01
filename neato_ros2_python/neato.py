@@ -7,7 +7,6 @@ import contextlib
 import rclpy
 from rclpy.node import Node, ParameterDescriptor
 from rcl_interfaces.msg import ParameterType
-from tf2_ros.buffer import Buffer
 from tf2_ros.transform_broadcaster import TransformBroadcaster
 import time
 import logging
@@ -145,7 +144,7 @@ class NeatoRobot(object):
         self._port.flushInput()
         assert self.write_command("getldsscan")
 
-        header = self._port.readline().decode('utf-8')
+        _ = self._port.readline().decode('utf-8')  # Read header
 
         ranges = [0] * self._laser_line_count
 
