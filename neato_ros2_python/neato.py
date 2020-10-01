@@ -222,6 +222,8 @@ def main(args=None):
     with robot.operational():
         node = NeatoNode(robot)
 
+        time.sleep(1)
+
         # rclpy.spin(node)
         while rclpy.ok():
             try:
