@@ -1,16 +1,19 @@
-from std_msgs.msg import Header
-from sensor_msgs.msg import LaserScan
-from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist, Quaternion, TransformStamped
-import serial
 import contextlib
+import logging
+import time
+
+import numpy as np
+import serial
+
 import rclpy
 from rclpy.node import Node, ParameterDescriptor
 from rcl_interfaces.msg import ParameterType
 from tf2_ros.transform_broadcaster import TransformBroadcaster
-import time
-import logging
-import numpy as np
+
+from geometry_msgs.msg import Twist, Quaternion, TransformStamped
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+from std_msgs.msg import Header
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,6 +35,7 @@ MOTOR_STATUS_FIELDS = [
 
 
 class NeatoRobot(object):
+
     def __init__(self, port='/dev/ttyACM0', baudrate=115200):
         self._port = serial.Serial(port, baudrate, timeout=0.1)
         self._motor_state = None
@@ -104,10 +108,10 @@ class NeatoRobot(object):
                 'on' if on else 'off'))
 
     def set_motors(self, left_dist: int, right_dist: int, speed: int):
-        assert self.write_command('setmotor {l} {r} {s}'
-                                  .format(l=int(left_dist),
-                                          r=int(right_dist),
-                                          s=int(speed)))
+        assert self.write_command('setmotor {left} {right} {speed}'
+                                  .format(left=int(left_dist),
+                                          right=int(right_dist),
+                                          speed=int(speed)))
 
     def get_motors(self):
         # self._port.flushInput()
@@ -163,6 +167,7 @@ class NeatoRobot(object):
 
 
 class NeatoNode(Node):
+
     def __init__(self, robot: NeatoRobot):
         super(NeatoNode, self).__init__('neato')
 
