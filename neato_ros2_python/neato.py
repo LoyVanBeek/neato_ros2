@@ -9,7 +9,7 @@ import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Quaternion
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Header
@@ -183,6 +183,11 @@ class NeatoNode(Node):
         self._scan.range_min = 0.020
         self._scan.range_max = 5.0
 
+        self.x, self.y, self.th = 0.0, 0.0, 0.0
+        self._encoders = [0, 0]
+        self._odom = Odometry(header=Header(frame_id="odom"),
+                              child_frame_id='base_link')
+
     def _process_cmd_vel(self, twist: Twist):
         self.get_logger().debug('twist: {}'.format(twist))
 
@@ -210,7 +215,11 @@ class NeatoNode(Node):
                                'right_dist': int(right * 1000),
                                'speed': int(speed * 1000)}
 
-    def tick(self):
+    def tick(self, previous_time):
+        now = self.get_clock().now()
+        dt = now - previous_time
+        dt_secs = dt.nanoseconds / 1_000_000_000
+
         self.get_logger().debug("tick")
         motor_state = self._robot.get_motors()
 
@@ -223,8 +232,38 @@ class NeatoNode(Node):
         self.get_logger().debug("tuck")
         self._scan.ranges = list(np.array(laser_ranges) / 1000)
 
-        self._scan.header.stamp = self.get_clock().now().to_msg()
+        self._scan.header.stamp = now.to_msg()
         self._scan_pub.publish(self._scan)
+
+        d_left = (motor_state['LeftWheel_PositionInMM'] - self._encoders[0]) / 1000.0
+        d_right = (motor_state['RightWheel_PositionInMM'] - self._encoders[1]) / 1000.0
+        self._encoders = [motor_state['LeftWheel_PositionInMM'],
+                          motor_state['RightWheel_PositionInMM']]
+
+        dx = (d_left + d_right) / 2
+        dth = (d_right - d_left) / self._robot.base_width
+
+        x = np.cos(dth) * dx
+        y = -np.sin(dth) * dx
+        self.x += np.cos(self.th) * x - np.sin(self.th) * y
+        self.y += np.sin(self.th) * x + np.cos(self.th) * y
+        self.th += dth
+
+        # prepare tf from base_link to odom
+        quaternion = Quaternion()
+        quaternion.z = np.sin(self.th / 2.0)
+        quaternion.w = np.cos(self.th / 2.0)
+
+        # Fill in odometry
+        self._odom.header.stamp = now.to_msg()
+        self._odom.pose.pose.position.x = self.x
+        self._odom.pose.pose.position.y = self.y
+        self._odom.pose.pose.position.z = 0.0
+        self._odom.pose.pose.orientation = quaternion
+        self._odom.twist.twist.linear.x = dx / dt_secs
+        self._odom.twist.twist.angular.z = dth / dt_secs
+
+        self._odom_pub.publish(self._odom)
 
         self.get_logger().debug("tock")
 
@@ -242,10 +281,12 @@ def main(args=None):
 
         # rclpy.spin(node)
         logging.info("Robot operational, starting loop")
+        prev = node.get_clock().now()
         while rclpy.ok():
             try:
                 rclpy.spin_once(node, timeout_sec=0.1)
-                node.tick()
+                node.tick(prev)
+                prev = node.get_clock().now()
             except KeyboardInterrupt:
                 break
 
