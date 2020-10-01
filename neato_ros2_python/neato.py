@@ -1,15 +1,18 @@
 import serial
 import contextlib
 import rclpy
-from rclpy.node import Node
+from rclpy.node import Node, ParameterDescriptor
+from rcl_interfaces.msg import ParameterType
 import time
 import logging
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
 from geometry_msgs.msg import Twist
-from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+from std_msgs.msg import Header
 
 
 MOTOR_STATUS_FIELDS = [
@@ -169,7 +172,16 @@ class NeatoNode(Node):
                                'right_dist': 0,
                                'speed': 0}
 
-        # self.timer = self.create_timer(1, self.tick)
+        self.declare_parameter('frame_id', 'laser_link',
+                               ParameterDescriptor(type=ParameterType.PARAMETER_STRING,
+                                                   description='Frame ID for the laser'))
+        scan_link = self.get_parameter_or('frame_id').value
+        self._scan = LaserScan(header=Header(frame_id=scan_link))
+        self._scan.angle_min = 0.0
+        self._scan.angle_max = np.pi * 2
+        self._scan.angle_increment = (self._scan.angle_max - self._scan.angle_min) / 360.0
+        self._scan.range_min = 0.020
+        self._scan.range_max = 5.0
 
     def _process_cmd_vel(self, twist: Twist):
         self.get_logger().debug('twist: {}'.format(twist))
@@ -209,9 +221,10 @@ class NeatoNode(Node):
         laser_ranges, laser_rpm = self._robot.get_laser_scan()
 
         self.get_logger().debug("tuck")
-        scan = LaserScan(ranges=laser_ranges)
-        scan.header.frame_id = 'scanner'
-        self._scan_pub.publish(scan)
+        self._scan.ranges = list(np.array(laser_ranges) / 1000)
+
+        self._scan.header.stamp = self.get_clock().now().to_msg()
+        self._scan_pub.publish(self._scan)
 
         self.get_logger().debug("tock")
 
