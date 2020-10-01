@@ -3,13 +3,14 @@ import contextlib
 import rclpy
 from rclpy.node import Node, ParameterDescriptor
 from rcl_interfaces.msg import ParameterType
+import tf2_py
 import time
 import logging
 import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
-from geometry_msgs.msg import Twist, Quaternion
+from geometry_msgs.msg import Twist, Quaternion, TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Header
@@ -165,6 +166,7 @@ class NeatoNode(Node):
 
         self._scan_pub = self.create_publisher(LaserScan, 'scan', 1)
         self._odom_pub = self.create_publisher(Odometry, 'odom', 1)
+        self._tf_buffer = tf2_py.BufferCore()
 
         self._cmd_vel_sub = self.create_subscription(Twist, 'cmd_vel', self._process_cmd_vel, 1)
 
@@ -187,6 +189,16 @@ class NeatoNode(Node):
         self._encoders = [0, 0]
         self._odom = Odometry(header=Header(frame_id="odom"),
                               child_frame_id='base_link')
+
+        self._bl_tf = TransformStamped(header=Header(frame_id="odom"),
+                                       child_frame_id = 'base_link')
+        self._bl_tf.transform.translation.x = 0.0
+        self._bl_tf.transform.translation.y = 0.0
+        self._bl_tf.transform.translation.z = 0.0
+        self._bl_tf.transform.rotation.w = 1.0
+        self._bl_tf.transform.rotation.x = 0.0
+        self._bl_tf.transform.rotation.y = 0.0
+        self._bl_tf.transform.rotation.z = 0.0
 
     def _process_cmd_vel(self, twist: Twist):
         self.get_logger().debug('twist: {}'.format(twist))
@@ -264,6 +276,13 @@ class NeatoNode(Node):
         self._odom.twist.twist.angular.z = dth / dt_secs
 
         self._odom_pub.publish(self._odom)
+
+        self._bl_tf.header.stamp = now.to_msg()
+        self._bl_tf.transform.translation.x = self.x
+        self._bl_tf.transform.translation.y = self.y
+        self._bl_tf.transform.rotation = quaternion
+
+        self._tf_buffer.set_transform(self._bl_tf, self.get_name())
 
         self.get_logger().debug("tock")
 
