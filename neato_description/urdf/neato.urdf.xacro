@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="neato">
+  <link name="base_link">
+    <visual>   
+      <origin xyz="0.150 -0.165 -0.040" rpy="0 0 1.57" />
+      <geometry>
+        <mesh filename="package://neato_description/meshes/neato.dae" scale="0.025 0.025 0.025"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
