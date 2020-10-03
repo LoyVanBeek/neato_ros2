@@ -24,11 +24,10 @@ import contextlib
 import logging
 import time
 
+from geometry_msgs.msg import Quaternion, TransformStamped, Twist
 import numpy as np
 import rclpy
 import serial
-
-from geometry_msgs.msg import Twist, Quaternion, TransformStamped
 from nav_msgs.msg import Odometry
 from rcl_interfaces.msg import ParameterType
 from rclpy.node import Node, ParameterDescriptor
@@ -87,8 +86,8 @@ class NeatoRobot(object):
 
     def write_command(self, command: str, retries=100):
         if retries:
-            logging.debug('Commanding \'{}\''.format(command))
-            self._port.write("{}\n".format(command).encode('ascii'))
+            logging.debug("Commanding '{}\'".format(command))
+            self._port.write('{}\n'.format(command).encode('ascii'))
 
             echo_raw = self._port.readline()
             logging.debug("echo '{}'".format(echo_raw))
@@ -99,10 +98,10 @@ class NeatoRobot(object):
                         command, echo))
                 logging.debug('Command written')
                 return True
-            elif "Unknown Cmd" in echo:
+            elif 'Unknown Cmd' in echo:
                 logging.debug("Error: unknown command '{}'".format(echo))
                 return self.write_command(command, retries=retries - 1)
-            elif "Ambiguous Cmd" in echo:
+            elif 'Ambiguous Cmd' in echo:
                 logging.debug("Error: ambiguous command '{}'".format(echo))
                 return self.write_command(command, retries=retries - 1)
             else:
