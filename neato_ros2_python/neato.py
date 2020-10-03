@@ -25,13 +25,13 @@ import logging
 import time
 
 from geometry_msgs.msg import Quaternion, TransformStamped, Twist
+from nav_msgs.msg import Odometry
 import numpy as np
 import rclpy
-import serial
-from nav_msgs.msg import Odometry
-from rcl_interfaces.msg import ParameterType
 from rclpy.node import Node, ParameterDescriptor
+from rcl_interfaces.msg import ParameterType
 from sensor_msgs.msg import LaserScan
+import serial
 from std_msgs.msg import Header
 from tf2_ros.transform_broadcaster import TransformBroadcaster
 
