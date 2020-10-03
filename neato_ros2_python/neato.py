@@ -1,5 +1,6 @@
 """
 Copyright 2020 Loy van Beek.
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the 'Software'), to deal
 in the Software without restriction, including without limitation the rights
@@ -24,17 +25,16 @@ import logging
 import time
 
 import numpy as np
-import serial
-
 import rclpy
-from rclpy.node import Node, ParameterDescriptor
-from rcl_interfaces.msg import ParameterType
-from tf2_ros.transform_broadcaster import TransformBroadcaster
+import serial
 
 from geometry_msgs.msg import Twist, Quaternion, TransformStamped
 from nav_msgs.msg import Odometry
+from rcl_interfaces.msg import ParameterType
+from rclpy.node import Node, ParameterDescriptor
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Header
+from tf2_ros.transform_broadcaster import TransformBroadcaster
 
 logging.basicConfig(level=logging.INFO)
 
