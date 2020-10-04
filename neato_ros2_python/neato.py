@@ -27,9 +27,9 @@ import time
 from geometry_msgs.msg import Quaternion, TransformStamped, Twist
 from nav_msgs.msg import Odometry
 import numpy as np
+from rcl_interfaces.msg import ParameterType
 import rclpy
 from rclpy.node import Node, ParameterDescriptor
-from rcl_interfaces.msg import ParameterType
 from sensor_msgs.msg import LaserScan
 import serial
 from std_msgs.msg import Header
