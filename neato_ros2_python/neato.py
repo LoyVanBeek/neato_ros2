@@ -1,16 +1,39 @@
-from std_msgs.msg import Header
-from sensor_msgs.msg import LaserScan
-from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist, Quaternion, TransformStamped
-import serial
+"""
+Copyright 2020 Loy van Beek.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the 'Software'), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"""
+
 import contextlib
+import logging
+import time
+
+from geometry_msgs.msg import Quaternion, TransformStamped, Twist
+from nav_msgs.msg import Odometry
+import numpy as np
+from rcl_interfaces.msg import ParameterType
 import rclpy
 from rclpy.node import Node, ParameterDescriptor
-from rcl_interfaces.msg import ParameterType
+from sensor_msgs.msg import LaserScan
+import serial
+from std_msgs.msg import Header
 from tf2_ros.transform_broadcaster import TransformBroadcaster
-import time
-import logging
-import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
@@ -32,6 +55,7 @@ MOTOR_STATUS_FIELDS = [
 
 
 class NeatoRobot(object):
+
     def __init__(self, port='/dev/ttyACM0', baudrate=115200):
         self._port = serial.Serial(port, baudrate, timeout=0.1)
         self._motor_state = None
@@ -62,8 +86,8 @@ class NeatoRobot(object):
 
     def write_command(self, command: str, retries=100):
         if retries:
-            logging.debug("Commanding '{}'".format(command))
-            self._port.write("{}\n".format(command).encode('ascii'))
+            logging.debug("Commanding '{}\'".format(command))
+            self._port.write('{}\n'.format(command).encode('ascii'))
 
             echo_raw = self._port.readline()
             logging.debug("echo '{}'".format(echo_raw))
@@ -72,12 +96,12 @@ class NeatoRobot(object):
                 logging.debug(
                     "Serial port synced: written '{}' & got '{}'".format(
                         command, echo))
-                logging.debug("Command written")
+                logging.debug('Command written')
                 return True
-            elif "Unknown Cmd" in echo:
+            elif 'Unknown Cmd' in echo:
                 logging.debug("Error: unknown command '{}'".format(echo))
                 return self.write_command(command, retries=retries - 1)
-            elif "Ambiguous Cmd" in echo:
+            elif 'Ambiguous Cmd' in echo:
                 logging.debug("Error: ambiguous command '{}'".format(echo))
                 return self.write_command(command, retries=retries - 1)
             else:
@@ -92,42 +116,42 @@ class NeatoRobot(object):
         raw = self._port.readline()
         _ascii = raw.decode('ascii')
         stripped = _ascii.strip()
-        logging.debug("{} -> '{}' -> '{}'".format(raw, _ascii, stripped))
+        logging.debug("'{}' -> '{}' -> '{}'".format(raw, _ascii, stripped))
         return stripped
 
     def set_testmode(self, on: bool):
-        assert self.write_command("testmode {}".format('on' if on else 'off'))
+        assert self.write_command('testmode {}'.format('on' if on else 'off'))
 
     def set_ldsrotation(self, on: bool):
         assert self.write_command(
-            "setldsrotation {}".format(
+            'etldsrotation {}'.format(
                 'on' if on else 'off'))
 
     def set_motors(self, left_dist: int, right_dist: int, speed: int):
-        assert self.write_command("setmotor {l} {r} {s}"
-                                  .format(l=int(left_dist),
-                                          r=int(right_dist),
-                                          s=int(speed)))
+        assert self.write_command('setmotor {left} {right} {speed}'
+                                  .format(left=int(left_dist),
+                                          right=int(right_dist),
+                                          speed=int(speed)))
 
     def get_motors(self):
         # self._port.flushInput()
-        assert self.write_command("getmotors")
-        logging.debug("Getting header...: ")
+        assert self.write_command('getmotors')
+        logging.debug('Getting header...: ')
         header = ''
         for i in range(100):
-            if "Parameter" not in header:
+            if 'Parameter' not in header:
                 header = self.read_line()
                 logging.debug(header)
             else:
                 break
         else:
-            logging.debug("Did not get header in time")
-            raise TimeoutError("Did not get header in time")
-        logging.debug("Got complete header, now reading  actual motor state")
+            logging.debug('Did not get header in time')
+            raise TimeoutError('Did not get header in time')
+        logging.debug('Got complete header, now reading  actual motor state')
         status = {}
 
         for _ in MOTOR_STATUS_FIELDS:
-            # self.logger.debug("Getting line...: ")
+            # self.logger.debug('Getting line...: ')
             line = self.read_line()
             # self.logger.debug(line)
             parts = line.split(',')
@@ -142,7 +166,7 @@ class NeatoRobot(object):
         :return: List of distances and rotation speed
         """
         self._port.flushInput()
-        assert self.write_command("getldsscan")
+        assert self.write_command('getldsscan')
 
         _ = self._port.readline().decode('utf-8')  # Read header
 
@@ -163,6 +187,7 @@ class NeatoRobot(object):
 
 
 class NeatoNode(Node):
+
     def __init__(self, robot: NeatoRobot):
         super(NeatoNode, self).__init__('neato')
 
@@ -196,10 +221,10 @@ class NeatoNode(Node):
 
         self.x, self.y, self.th = 0.0, 0.0, 0.0
         self._encoders = [0, 0]
-        self._odom = Odometry(header=Header(frame_id="odom"),
+        self._odom = Odometry(header=Header(frame_id='odom'),
                               child_frame_id='base_link')
 
-        self._bl_tf = TransformStamped(header=Header(frame_id="odom"),
+        self._bl_tf = TransformStamped(header=Header(frame_id='odom'),
                                        child_frame_id='base_link')
         self._bl_tf.transform.translation.x = 0.0
         self._bl_tf.transform.translation.y = 0.0
@@ -245,16 +270,16 @@ class NeatoNode(Node):
         dt = now - previous_time
         dt_secs = dt.nanoseconds / 1_000_000_000
 
-        self.get_logger().debug("tick")
+        self.get_logger().debug('tick')
         motor_state = self._robot.get_motors()
 
-        self.get_logger().debug("tack")
+        self.get_logger().debug('tack')
         self._robot.set_motors(**self.motor_commands)
 
-        self.get_logger().debug("teck")
+        self.get_logger().debug('teck')
         laser_ranges, laser_rpm = self._robot.get_laser_scan()
 
-        self.get_logger().debug("tuck")
+        self.get_logger().debug('tuck')
         self._scan.ranges = list(np.array(laser_ranges) / 1000)
 
         self._scan.header.stamp = now.to_msg()
@@ -299,7 +324,7 @@ class NeatoNode(Node):
 
         self._tf_broadcaster.sendTransform(self._bl_tf)
 
-        self.get_logger().debug("tock")
+        self.get_logger().debug('tock')
 
 
 def main(args=None):
@@ -314,7 +339,7 @@ def main(args=None):
         time.sleep(1)
 
         # rclpy.spin(node)
-        logging.info("Robot operational, starting loop")
+        logging.info('Robot operational, starting loop')
         prev = node.get_clock().now()
         while rclpy.ok():
             try:
