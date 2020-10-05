@@ -121,7 +121,7 @@ class NeatoRobot(object):
 
     def set_ldsrotation(self, on: bool):
         assert self.write_command(
-            'etldsrotation {}'.format(
+            'setldsrotation {}'.format(
                 'on' if on else 'off'))
 
     def set_motors(self, left_dist: int, right_dist: int, speed: int):
