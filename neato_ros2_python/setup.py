@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'neato = neato_ros2_python.neato:main'
+            'neato_node = neato_ros2_python.neato_node:main',
+            'neato_driver = neato_ros2_python.neato_driver:main'
         ],
     },
 )

@@ -19,10 +19,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
-
-import contextlib
-import logging
 import time
+
+from .neato_driver import NeatoRobot
 
 from geometry_msgs.msg import Quaternion, TransformStamped, Twist
 from nav_msgs.msg import Odometry
@@ -31,159 +30,9 @@ from rcl_interfaces.msg import ParameterType
 import rclpy
 from rclpy.node import Node, ParameterDescriptor
 from sensor_msgs.msg import LaserScan
-import serial
+
 from std_msgs.msg import Header
 from tf2_ros.transform_broadcaster import TransformBroadcaster
-
-logging.basicConfig(level=logging.INFO)
-
-
-MOTOR_STATUS_FIELDS = [
-    'brush_rpm',
-    'brush_ma',
-    'vacuum_rpm',
-    'vacuum_ma',
-    'left_wheel_rpm',
-    'left_wheel_load',
-    'left_wheel_position_in_mm',
-    'left_wheel_speed',
-    'right_wheel_rpm',
-    'right_wheel_load',
-    'right_wheel_position_in_mm',
-    'right_wheel_speed',
-    'side_brush_ma']
-
-
-class NeatoRobot(object):
-
-    def __init__(self, port='/dev/ttyACM0', baudrate=115200):
-        self._port = serial.Serial(port, baudrate, timeout=0.1)
-        self._motor_state = None
-
-        self._laser_line_count = 360
-
-        self.base_width = 0.245
-        self.max_speed = 0.300  # Meters
-
-    def __del__(self):
-        self._port.close()
-
-    @contextlib.contextmanager
-    def operational(self):
-        self._port.flushInput()
-        self._port.flushOutput()
-
-        self.set_testmode(True)
-        self.set_ldsrotation(True)
-
-        yield
-
-        self.set_ldsrotation(False)
-        self.set_testmode(False)
-
-        self._port.flushOutput()
-        self._port.flushInput()
-
-    def write_command(self, command: str, retries=100):
-        if retries:
-            logging.debug("Commanding '{}\'".format(command))
-            self._port.write('{}\n'.format(command).encode('ascii'))
-
-            echo_raw = self._port.readline()
-            logging.debug("echo '{}'".format(echo_raw))
-            echo = echo_raw.decode('ascii').strip()
-            if command in echo:
-                logging.debug(
-                    "Serial port synced: written '{}' & got '{}'".format(
-                        command, echo))
-                logging.debug('Command written')
-                return True
-            elif 'Unknown Cmd' in echo:
-                logging.debug("Error: unknown command '{}'".format(echo))
-                return self.write_command(command, retries=retries - 1)
-            elif 'Ambiguous Cmd' in echo:
-                logging.debug("Error: ambiguous command '{}'".format(echo))
-                return self.write_command(command, retries=retries - 1)
-            else:
-                logging.debug(
-                    "Serial port not yet in sync, expected '{}', got '{}'".format(
-                        command, echo))
-                return self.write_command(command, retries=retries - 1)
-        else:
-            return False
-
-    def read_line(self):
-        raw = self._port.readline()
-        _ascii = raw.decode('ascii')
-        stripped = _ascii.strip()
-        logging.debug("'{}' -> '{}' -> '{}'".format(raw, _ascii, stripped))
-        return stripped
-
-    def set_testmode(self, on: bool):
-        assert self.write_command('testmode {}'.format('on' if on else 'off'))
-
-    def set_ldsrotation(self, on: bool):
-        assert self.write_command(
-            'etldsrotation {}'.format(
-                'on' if on else 'off'))
-
-    def set_motors(self, left_dist: int, right_dist: int, speed: int):
-        assert self.write_command('setmotor {left} {right} {speed}'
-                                  .format(left=int(left_dist),
-                                          right=int(right_dist),
-                                          speed=int(speed)))
-
-    def get_motors(self):
-        # self._port.flushInput()
-        assert self.write_command('getmotors')
-        logging.debug('Getting header...: ')
-        header = ''
-        for i in range(100):
-            if 'Parameter' not in header:
-                header = self.read_line()
-                logging.debug(header)
-            else:
-                break
-        else:
-            logging.debug('Did not get header in time')
-            raise TimeoutError('Did not get header in time')
-        logging.debug('Got complete header, now reading  actual motor state')
-        status = {}
-
-        for _ in MOTOR_STATUS_FIELDS:
-            # self.logger.debug('Getting line...: ')
-            line = self.read_line()
-            # self.logger.debug(line)
-            parts = line.split(',')
-            status[parts[0]] = int(parts[1])
-        self._motor_state = status
-        return status
-
-    def get_laser_scan(self):
-        """
-        Get the laser scan ranges in mm and the rotation speed (in RPM) of the laser scanner.
-
-        :return: List of distances and rotation speed
-        """
-        self._port.flushInput()
-        assert self.write_command('getldsscan')
-
-        _ = self._port.readline().decode('utf-8')  # Read header
-
-        ranges = [0] * self._laser_line_count
-
-        for expected_angle in range(self._laser_line_count):
-            scanline = self.read_line()
-            parts = scanline.split(',')
-            angle = int(parts[0])
-            distance = int(parts[1])
-            ranges[angle] = distance  # Distance millimeters
-
-        footer = self.read_line()
-
-        lds_rpm = float(footer.split(',')[1])
-
-        return ranges, lds_rpm
 
 
 class NeatoNode(Node):
@@ -329,7 +178,6 @@ class NeatoNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    logging.info('Hi from neato_ros2_python.')
 
     robot = NeatoRobot(port='/dev/ttyACM0')
 
@@ -339,7 +187,7 @@ def main(args=None):
         time.sleep(1)
 
         # rclpy.spin(node)
-        logging.info('Robot operational, starting loop')
+        node.get_logger().info('Robot operational, starting loop')
         prev = node.get_clock().now()
         while rclpy.ok():
             try:

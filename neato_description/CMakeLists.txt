@@ -31,3 +31,11 @@ if(BUILD_TESTING)
 endif()
 
 ament_package()
+
+# Install launch files.
+install(DIRECTORY
+  launch
+  meshes
+  urdf
+  DESTINATION share/${PROJECT_NAME}/
+)
