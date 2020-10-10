@@ -24,7 +24,7 @@ import logging
 import serial
 import time
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 MOTOR_STATUS_FIELDS = [
