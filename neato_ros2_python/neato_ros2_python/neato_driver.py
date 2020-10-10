@@ -21,8 +21,9 @@ THE SOFTWARE.
 """
 import contextlib
 import logging
-import serial
 import time
+
+import serial
 
 logging.basicConfig(level=logging.INFO)
 
@@ -77,8 +78,8 @@ class NeatoRobot(object):
         while True:
             try:
                 self.read_line()
-            except Exception as e:
-                logging.error("Could not read another line")
+            except Exception:
+                logging.exception('Could not read another line')
                 break
 
     def write_command(self, command: str, retries=100):
@@ -191,7 +192,9 @@ def main(args=None):
 
         while True:
             motor_state = robot.get_motors()
-            laser_ranges, laser_rpm = robot.get_laser_scan()
+            print(motor_state)
+            laser_ranges, _ = robot.get_laser_scan()
+            print(laser_ranges)
 
 
 if __name__ == '__main__':

@@ -21,8 +21,6 @@ THE SOFTWARE.
 """
 import time
 
-from .neato_driver import NeatoRobot
-
 from geometry_msgs.msg import Quaternion, TransformStamped, Twist
 from nav_msgs.msg import Odometry
 import numpy as np
@@ -33,6 +31,8 @@ from sensor_msgs.msg import LaserScan
 
 from std_msgs.msg import Header
 from tf2_ros.transform_broadcaster import TransformBroadcaster
+
+from .neato_driver import NeatoRobot
 
 
 class NeatoNode(Node):
