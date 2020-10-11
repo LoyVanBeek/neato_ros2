@@ -71,10 +71,10 @@ class NeatoNode(Node):
         self.x, self.y, self.th = 0.0, 0.0, 0.0
         self._encoders = [0, 0]
         self._odom = Odometry(header=Header(frame_id='odom'),
-                              child_frame_id='base_link')
+                              child_frame_id='base_footprint')
 
         self._bl_tf = TransformStamped(header=Header(frame_id='odom'),
-                                       child_frame_id='base_link')
+                                       child_frame_id='base_footprint')
         self._bl_tf.transform.translation.x = 0.0
         self._bl_tf.transform.translation.y = 0.0
         self._bl_tf.transform.translation.z = 0.0
@@ -117,7 +117,7 @@ class NeatoNode(Node):
     def tick(self, previous_time):
         now = self.get_clock().now()
         dt = now - previous_time
-        dt_secs = dt.nanoseconds / 1_000_000_000
+        dt_secs = dt.nanoseconds / 1000000000
 
         self.get_logger().debug('tick')
         motor_state = self._robot.get_motors()
