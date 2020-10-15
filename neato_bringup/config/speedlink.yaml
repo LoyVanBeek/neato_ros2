@@ -13,11 +13,11 @@ joystick_teleop:
     scale_angular:
       pitch: 0.0
       roll: 0.0
-      yaw: 0.1
+      yaw: 0.2
     scale_angular_turbo:
       pitch: 0.0
       roll: 0.0
-      yaw: 0.5
+      yaw: 0.4
     scale_linear:
       x: 0.1
       y: 0.0
