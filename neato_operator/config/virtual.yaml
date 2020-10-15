@@ -13,13 +13,13 @@
     scale_angular:
       pitch: 0.0
       roll: 0.0
-      yaw: 0.25
+      yaw: 0.1
     scale_angular_turbo:
       pitch: 0.0
       roll: 0.0
-      yaw: 1.0
+      yaw: 0.5
     scale_linear:
-      x: 0.25
+      x: 0.1
       y: 0.0
       z: 0.0
     scale_linear_turbo:
