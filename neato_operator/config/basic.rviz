@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /TF1/Tree1
+        - /LaserScan2
       Splitter Ratio: 0.5
     Tree Height: 787
   - Class: rviz_common/Selection
@@ -113,15 +114,16 @@ Visualization Manager:
       Show Names: false
       Tree:
         map:
-          odom:
-            base_footprint:
-              base_link:
-                laser_link:
-                  {}
-                left_wheel_link:
-                  {}
-                right_wheel_link:
-                  {}
+          {}
+        odom:
+          base_footprint:
+            base_link:
+              laser_link:
+                {}
+              left_wheel_link:
+                {}
+              right_wheel_link:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -145,9 +147,9 @@ Visualization Manager:
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
-      Size (Pixels): 3
+      Size (Pixels): 2
       Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Style: Points
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -156,6 +158,59 @@ Visualization Manager:
         Value: /scan
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 3.815490245819092
+        Min Value: -2.4244112968444824
+        Value: true
+      Axis: Y
+      Channel Name: intensity
+      Class: rviz_default_plugins/LaserScan
+      Color: 255; 0; 0
+      Color Transformer: FlatColor
+      Decay Time: 1
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: LaserScan
+      Position Transformer: XYZ
+      Selectable: false
+      Size (Pixels): 3
+      Size (m): 0.019999999552965164
+      Style: Spheres
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /scan
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map_updates
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:
@@ -200,25 +255,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 5.087639331817627
+      Distance: 8.737530708312988
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.014337336644530296
-        Y: -0.09522858262062073
-        Z: 0.6962394714355469
+        X: 0.00815340131521225
+        Y: -0.4575251042842865
+        Z: 0.8075199127197266
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9403973817825317
+      Pitch: 0.8503978252410889
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 0.28040793538093567
+      Yaw: 1.335408091545105
     Saved: ~
 Window Geometry:
   Displays:
