@@ -62,9 +62,8 @@ class NeatoNode(Node):
         scan_link = self.get_parameter_or('frame_id').value
         self._scan = LaserScan(header=Header(frame_id=scan_link))
         self._scan.angle_min = 0.0
-        self._scan.angle_max = np.pi * 2
-        self._scan.angle_increment = (
-            self._scan.angle_max - self._scan.angle_min) / 360.0
+        self._scan.angle_increment = (np.pi * 2) / 360.0
+        self._scan.angle_max = (np.pi * 2) - self._scan.angle_increment
         self._scan.range_min = 0.020
         self._scan.range_max = 5.0
 
