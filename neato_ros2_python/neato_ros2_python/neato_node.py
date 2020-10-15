@@ -20,13 +20,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 """
 import time
+from typing import List
 
 from geometry_msgs.msg import Quaternion, TransformStamped, Twist
 from nav_msgs.msg import Odometry
 import numpy as np
 from rcl_interfaces.msg import ParameterType
 import rclpy
-from rclpy.node import Node, ParameterDescriptor
+from rclpy.node import Node, ParameterDescriptor, SetParametersResult, Parameter
 from sensor_msgs.msg import LaserScan
 
 from std_msgs.msg import Header
@@ -41,6 +42,10 @@ class NeatoNode(Node):
         super(NeatoNode, self).__init__('neato')
 
         self._robot = robot
+
+        self.declare_parameter('base_width', self._robot.base_width,
+                               ParameterDescriptor(type=ParameterType.PARAMETER_DOUBLE,
+                                                   description='How far are the wheels apart?'))
 
         self._scan_pub = self.create_publisher(LaserScan, 'scan', 1)
         self._odom_pub = self.create_publisher(Odometry, 'odom', 1)
@@ -72,6 +77,7 @@ class NeatoNode(Node):
         self._odom = Odometry(header=Header(frame_id='odom'),
                               child_frame_id='base_footprint')
 
+
         self._bl_tf = TransformStamped(header=Header(frame_id='odom'),
                                        child_frame_id='base_footprint')
         self._bl_tf.transform.translation.x = 0.0
@@ -81,6 +87,10 @@ class NeatoNode(Node):
         self._bl_tf.transform.rotation.x = 0.0
         self._bl_tf.transform.rotation.y = 0.0
         self._bl_tf.transform.rotation.z = 0.0
+
+        # import ipdb; ipdb.set_trace()
+        self.get_logger().info("Adding callback")
+        self.add_on_set_parameters_callback(self._handle_parameters)
 
     def _process_cmd_vel(self, twist: Twist):
         self.get_logger().debug('twist: {}'.format(twist))
@@ -174,6 +184,13 @@ class NeatoNode(Node):
 
         self.get_logger().debug('tock')
 
+    def _handle_parameters(self, parameters: List[Parameter]):
+        for parameter in parameters:
+            if parameter.name == 'base_width':
+                self.get_logger().warn("Overriding robot's base_width: {}".format(parameter.value))
+                self._robot.base_width = parameter.value
+
+        return SetParametersResult(successful=True)
 
 def main(args=None):
     rclpy.init(args=args)

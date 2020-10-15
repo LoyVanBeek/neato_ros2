@@ -52,7 +52,7 @@ class NeatoRobot(object):
 
         self._laser_line_count = 360
 
-        self.base_width = 0.245
+        self.base_width = 0.255
         self.max_speed = 0.300  # Meters
 
     def __del__(self):
