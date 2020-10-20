@@ -35,6 +35,8 @@ from tf2_ros.transform_broadcaster import TransformBroadcaster
 
 from .neato_driver import NeatoRobot
 
+lX, lY, lZ, rX, rY, rZ = 0, 1, 2, 3, 4, 5
+
 
 class NeatoNode(Node):
 
