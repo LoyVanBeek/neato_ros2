@@ -79,6 +79,20 @@ class NeatoNode(Node):
         self._odom = Odometry(header=Header(frame_id='odom'),
                               child_frame_id='base_footprint')
 
+        self._odom.pose.covariance[lX*6 + lX] = 0.01
+        self._odom.pose.covariance[lY*6 + lY] = 0.01
+        self._odom.pose.covariance[lZ*6 + lZ] = 0
+        self._odom.pose.covariance[rX*6 + rX] = 0
+        self._odom.pose.covariance[rY*6 + rY] = 0
+        self._odom.pose.covariance[rZ*6 + rZ] = 0.01
+
+        self._odom.twist.covariance[lX*6 + lX] = 0.02
+        # self._odom.twist.covariance[lY*6 + lY] = 0.0001
+        self._odom.twist.covariance[lZ*6 + lZ] = 0
+        # self._odom.twist.covariance[rX*6 + rX] = 0.1
+        # self._odom.twist.covariance[rY*6 + rY] = 0.1
+        self._odom.twist.covariance[rZ*6 + rZ] = 0.02
+
 
         self._bl_tf = TransformStamped(header=Header(frame_id='odom'),
                                        child_frame_id='base_footprint')
