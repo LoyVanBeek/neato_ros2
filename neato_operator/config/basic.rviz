@@ -1,14 +1,15 @@
 Panels:
   - Class: rviz_common/Displays
-    Help Height: 78
+    Help Height: 70
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /TF1/Tree1
+        - /Map1/Topic1
         - /Odometry1
         - /Odometry1/Shape1
       Splitter Ratio: 0.5
-    Tree Height: 787
+    Tree Height: 795
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -114,16 +115,15 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        map:
-          odom:
-            base_footprint:
-              base_link:
-                left_wheel_link:
-                  {}
-                right_wheel_link:
-                  {}
-              laser_link:
+        odom:
+          base_footprint:
+            base_link:
+              left_wheel_link:
                 {}
+              right_wheel_link:
+                {}
+            laser_link:
+              {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -200,7 +200,7 @@ Visualization Manager:
       Name: Map
       Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /map
@@ -293,25 +293,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 10.158164978027344
+      Distance: 6.7089009284973145
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.7881258130073547
-        Y: 0.04179701581597328
-        Z: 0.8227330446243286
+        X: -0.002359488047659397
+        Y: 0.20579227805137634
+        Z: 0.29790180921554565
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9847962260246277
+      Pitch: 1.1747967004776
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 3.525412082672119
+      Yaw: 4.670413970947266
     Saved: ~
 Window Geometry:
   Displays:
