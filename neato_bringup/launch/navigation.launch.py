@@ -12,6 +12,35 @@ from launch_ros.events.lifecycle import ChangeState
 
 from lifecycle_msgs.msg import Transition
 
+from typing import Optional
+
+
+def transition_trigger(trigger_source: LifecycleNode,
+                       in_state: str,
+                       transition: int,
+                       trigger_sink: Optional[LifecycleNode]=None):
+    if not trigger_sink:
+        trigger_sink = trigger_source
+
+    transition_desc = ChangeState.valid_transitions[transition]
+    return RegisterEventHandler(
+        OnStateTransition(
+            target_lifecycle_node=trigger_source, goal_state=in_state,
+            entities=[
+                LogInfo(
+                    msg="{} reached the '{}' state, calling '{}' on {}".format(trigger_source,
+                                                                    in_state,
+                                                                    transition_desc,
+                                                                    trigger_sink)),
+                EmitEvent(event=ChangeState(
+                    lifecycle_node_matcher=matches_action(trigger_sink),
+                    transition_id=transition,
+                )),
+            ],
+        )
+    )
+
+
 def generate_launch_description():
     map_config = Path(
         get_package_share_directory('neato_bringup'), 'config', 'map_server.yaml')
@@ -36,19 +65,7 @@ def generate_launch_description():
         output='screen',
         parameters=[map_config])
 
-    activate_amcl = RegisterEventHandler(
-        OnStateTransition(
-            target_lifecycle_node=amcl, goal_state='inactive',
-            entities=[
-                LogInfo(
-                    msg="AMCL reached the 'inactive' state, 'activating'."),
-                EmitEvent(event=ChangeState(
-                    lifecycle_node_matcher=matches_action(amcl),
-                    transition_id=Transition.TRANSITION_ACTIVATE,
-                )),
-            ],
-        )
-    )
+    activate_amcl = transition_trigger(amcl, 'inactive', Transition.TRANSITION_ACTIVATE)
 
     configure_amcl = EmitEvent(
         event=ChangeState(
@@ -64,19 +81,7 @@ def generate_launch_description():
         )
     )
 
-    activate_map_server = RegisterEventHandler(
-        OnStateTransition(
-            target_lifecycle_node=map_server, goal_state='inactive',
-            entities=[
-                LogInfo(
-                    msg="map_server reached the 'inactive' state, 'activating'."),
-                EmitEvent(event=ChangeState(
-                    lifecycle_node_matcher=matches_action(map_server),
-                    transition_id=Transition.TRANSITION_ACTIVATE,
-                )),
-            ],
-        )
-    )
+    activate_map_server = transition_trigger(map_server, 'inactive', Transition.TRANSITION_ACTIVATE)
 
     ld = LaunchDescription([
         activate_amcl,
