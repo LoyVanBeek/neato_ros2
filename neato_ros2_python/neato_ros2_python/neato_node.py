@@ -104,8 +104,7 @@ class NeatoNode(Node):
         self._bl_tf.transform.rotation.y = 0.0
         self._bl_tf.transform.rotation.z = 0.0
 
-        # import ipdb; ipdb.set_trace()
-        self.get_logger().info("Adding callback")
+        self.get_logger().debug("Adding callback")
         self.add_on_set_parameters_callback(self._handle_parameters)
 
     def _process_cmd_vel(self, twist: Twist):
