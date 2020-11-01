@@ -64,27 +64,12 @@ def generate_launch_description():
         )
     )
 
-
-    configure_map_server = RegisterEventHandler(
-        OnStateTransition(
-            target_lifecycle_node=map_server, goal_state='unconfigured',
-            entities=[
-                LogInfo(
-                    msg="AMCL reached the 'unconfigured' state, 'configuring'."),
-                EmitEvent(event=ChangeState(
-                    lifecycle_node_matcher=matches_action(map_server),
-                    transition_id=Transition.TRANSITION_CONFIGURE,
-                )),
-            ],
-        )
-    )
-
     activate_map_server = RegisterEventHandler(
         OnStateTransition(
-            target_lifecycle_node=map_server, goal_state='configured',
+            target_lifecycle_node=map_server, goal_state='inactive',
             entities=[
                 LogInfo(
-                    msg="AMCL reached the 'configured' state, 'activating'."),
+                    msg="AMCL reached the 'inactive' state, 'activating'."),
                 EmitEvent(event=ChangeState(
                     lifecycle_node_matcher=matches_action(map_server),
                     transition_id=Transition.TRANSITION_ACTIVATE,
@@ -94,14 +79,13 @@ def generate_launch_description():
     )
 
     ld = LaunchDescription([
-        # configure_amcl,
         activate_amcl,
         amcl,
         activate_map_server,
         map_server,
-        # navigation2,
         configure_map_server,
         configure_amcl,
+        navigation2,
       ])
 
     print('Starting introspection of launch description...')
