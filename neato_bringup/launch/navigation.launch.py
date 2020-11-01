@@ -69,7 +69,7 @@ def generate_launch_description():
             target_lifecycle_node=map_server, goal_state='inactive',
             entities=[
                 LogInfo(
-                    msg="AMCL reached the 'inactive' state, 'activating'."),
+                    msg="map_server reached the 'inactive' state, 'activating'."),
                 EmitEvent(event=ChangeState(
                     lifecycle_node_matcher=matches_action(map_server),
                     transition_id=Transition.TRANSITION_ACTIVATE,
