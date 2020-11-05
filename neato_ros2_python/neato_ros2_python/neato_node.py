@@ -43,6 +43,7 @@ class NeatoNode(Node):
         super(NeatoNode, self).__init__('neato')
 
         self._robot = robot
+        self._expect_laser_scan = False
 
         self.declare_parameter('base_width', self._robot.base_width,
                                ParameterDescriptor(type=ParameterType.PARAMETER_DOUBLE,
@@ -142,19 +143,23 @@ class NeatoNode(Node):
         dt_secs = dt.nanoseconds / 1000000000
 
         self.get_logger().debug('tick')
-        motor_state = self._robot.get_motors()
+        if self._expect_laser_scan:
+            laser_ranges, laser_rpm = self._robot.finish_laser_scan()
+
+            self.get_logger().debug('tuck')
+            self._scan.ranges = list(np.array(laser_ranges) / 1000)
+
+            self._scan.header.stamp = now.to_msg()
+            self._scan_pub.publish(self._scan)
 
         self.get_logger().debug('tack')
-        self._robot.set_motors(**self.motor_commands)
+        motor_state = self._robot.get_motors()
 
         self.get_logger().debug('teck')
-        laser_ranges, laser_rpm = self._robot.get_laser_scan()
+        self._robot.set_motors(**self.motor_commands)
 
-        self.get_logger().debug('tuck')
-        self._scan.ranges = list(np.array(laser_ranges) / 1000)
-
-        self._scan.header.stamp = now.to_msg()
-        self._scan_pub.publish(self._scan)
+        self._robot.start_laser_scan()
+        self._expect_laser_scan = True
 
         d_left = (motor_state['LeftWheel_PositionInMM'] -
                   self._encoders[0]) / 1000.0

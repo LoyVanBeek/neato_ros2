@@ -157,15 +157,28 @@ class NeatoRobot(object):
         self._motor_state = status
         return status
 
+    def start_laser_scan(self):
+        """
+        Start getting a laserscan
+        """
+        self._port.flushInput()
+        assert self.write_command('getldsscan')
+
     def get_laser_scan(self):
         """
         Get the laser scan ranges in mm and the rotation speed (in RPM) of the laser scanner.
 
         :return: List of distances and rotation speed
         """
-        self._port.flushInput()
-        assert self.write_command('getldsscan')
+        self.start_laser_scan()
+        return self.finish_laser_scan()
 
+    def  finish_laser_scan(self):
+        """
+        Get the laser scan ranges in mm and the rotation speed (in RPM) of the laser scanner.
+
+        :return: List of distances and rotation speed
+        """
         _ = self._port.readline().decode('utf-8')  # Read header
 
         ranges = [0] * self._laser_line_count
@@ -190,11 +203,17 @@ def main(args=None):
     with robot.operational():
         time.sleep(1)
 
+        first = True
+
         while True:
+            if not first:
+                laser_ranges, _ = robot.get_laser_scan()
+                print(laser_ranges)
+            first = False
             motor_state = robot.get_motors()
             print(motor_state)
-            laser_ranges, _ = robot.get_laser_scan()
-            print(laser_ranges)
+            robot.start_laser_scan()
+            time.sleep(0.1)
 
 
 if __name__ == '__main__':
