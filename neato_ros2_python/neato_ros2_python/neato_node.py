@@ -22,10 +22,10 @@ THE SOFTWARE.
 import time
 from typing import List
 
-import numpy as np
-import rclpy
 from geometry_msgs.msg import Quaternion, TransformStamped, Twist
 from nav_msgs.msg import Odometry
+import numpy as np
+import rclpy
 from rcl_interfaces.msg import ParameterType
 from rclpy.node import Node, Parameter, ParameterDescriptor, SetParametersResult
 from sensor_msgs.msg import LaserScan
