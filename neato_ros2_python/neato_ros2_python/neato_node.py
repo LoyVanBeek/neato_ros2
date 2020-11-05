@@ -22,14 +22,13 @@ THE SOFTWARE.
 import time
 from typing import List
 
+import numpy as np
+import rclpy
 from geometry_msgs.msg import Quaternion, TransformStamped, Twist
 from nav_msgs.msg import Odometry
-import numpy as np
 from rcl_interfaces.msg import ParameterType
-import rclpy
-from rclpy.node import Node, ParameterDescriptor, SetParametersResult, Parameter
+from rclpy.node import Node, Parameter, ParameterDescriptor, SetParametersResult
 from sensor_msgs.msg import LaserScan
-
 from std_msgs.msg import Header
 from tf2_ros.transform_broadcaster import TransformBroadcaster
 
@@ -93,7 +92,6 @@ class NeatoNode(Node):
         # self._odom.twist.covariance[rY*6 + rY] = 0.1
         self._odom.twist.covariance[rZ*6 + rZ] = 0.02
 
-
         self._bl_tf = TransformStamped(header=Header(frame_id='odom'),
                                        child_frame_id='base_footprint')
         self._bl_tf.transform.translation.x = 0.0
@@ -104,7 +102,7 @@ class NeatoNode(Node):
         self._bl_tf.transform.rotation.y = 0.0
         self._bl_tf.transform.rotation.z = 0.0
 
-        self.get_logger().debug("Adding callback")
+        self.get_logger().debug('Adding callback')
         self.add_on_set_parameters_callback(self._handle_parameters)
 
     def _process_cmd_vel(self, twist: Twist):
@@ -206,6 +204,7 @@ class NeatoNode(Node):
                 self._robot.base_width = parameter.value
 
         return SetParametersResult(successful=True)
+
 
 def main(args=None):
     rclpy.init(args=args)
