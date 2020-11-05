@@ -90,7 +90,8 @@ def generate_launch_description():
         map_server,
         configure_map_server,
         configure_amcl,
-        navigation2,
+        # navigation2,
+        # ros2 launch nav2_bringup bringup_launch.py use_sim_time:=False autostart:=True map:=/home/loy/map.yaml is enough
       ])
 
     print('Starting introspection of launch description...')
