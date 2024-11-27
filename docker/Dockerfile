@@ -49,4 +49,6 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
  && colcon build --symlink-install --event-handlers console_cohesion+\
  && rm -rf /var/lib/apt/lists/*"
 
- # Continue with https://roboticseabass.com/2023/07/09/updated-guide-docker-and-ros2/
+# Set up entrypoint
+COPY ./docker/entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]
