@@ -5,6 +5,8 @@ FROM ros:${ROS_DISTRO}-ros-base-jammy
 RUN apt update && apt-get install -y --no-install-recommends \
         ros-${ROS_DISTRO}-desktop=0.10.0-1* \
         ros-humble-rmw-cyclonedds-cpp \
+        iproute2 \
+        net-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Prepare CycloneDDS config file

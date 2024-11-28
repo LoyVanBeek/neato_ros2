@@ -13,6 +13,7 @@ services:
     # Networking and IPC for ROS 2
     network_mode: host
     ipc: host
+    pid: host
     # Needed to display graphical applications
     privileged: true
     environment:

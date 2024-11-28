@@ -15,6 +15,8 @@ RUN apt update -qq && apt install -y --no-install-recommends \
       tree \
       vim \
       wget \
+      iproute2 \
+      net-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # install_ros_tools
