@@ -35,12 +35,18 @@ WORKDIR /root/ros2_ws/src
 # install ROS additional packages needed for application
 RUN apt update -qq && apt install -y --no-install-recommends \
       ros-humble-xacro \
+      ros-humble-rmw-cyclonedds-cpp \
     && rm -rf /var/lib/apt/lists/*
 
 
 COPY ./neato_description /root/ros2_ws/src/neato_description
 COPY ./neato_ros2_python /root/ros2_ws/src/neato_ros2_python
 COPY ./neato_bringup /root/ros2_ws/src/neato_bringup
+
+# Prepare CycloneDDS config file
+COPY ./docker/robot/cyclonedds.xml /cyclonedds.xml
+ENV CYCLONEDDS_URI=file:///cyclonedds.xml
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 WORKDIR /root/ros2_ws
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
@@ -50,5 +56,5 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
  && rm -rf /var/lib/apt/lists/*"
 
 # Set up entrypoint
-COPY ./docker/entrypoint.sh /
+COPY ./docker/robot/entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]

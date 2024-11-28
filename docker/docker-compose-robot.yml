@@ -1,11 +1,10 @@
-version: "3.9"
 services:
   # Base image containing dependencies.
   base:
     image: neato
     build:
-      context: .
-      dockerfile: docker/Dockerfile
+      context: ..
+      dockerfile: docker/robot/Dockerfile
       args:
         ROS_DISTRO: humble
     # Interactive shell
