@@ -38,9 +38,9 @@ RUN apt update -qq && apt install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 
-COPY --link ./neato_description /root/ros2_ws/src/neato_description
-COPY --link ./neato_ros2_python /root/ros2_ws/src/neato_ros2_python
-COPY --link ./neato_bringup /root/ros2_ws/src/neato_bringup
+COPY ./neato_description /root/ros2_ws/src/neato_description
+COPY ./neato_ros2_python /root/ros2_ws/src/neato_ros2_python
+COPY ./neato_bringup /root/ros2_ws/src/neato_bringup
 
 WORKDIR /root/ros2_ws
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
