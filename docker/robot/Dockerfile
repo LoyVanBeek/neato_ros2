@@ -38,8 +38,8 @@ WORKDIR /root/ros2_ws/src
 RUN apt update -qq && apt install -y --no-install-recommends \
       ros-humble-xacro \
       ros-humble-rmw-cyclonedds-cpp \
+      ros-humble-teleop-twist-keyboard \
     && rm -rf /var/lib/apt/lists/*
-
 
 COPY ./neato_description /root/ros2_ws/src/neato_description
 COPY ./neato_ros2_python /root/ros2_ws/src/neato_ros2_python
