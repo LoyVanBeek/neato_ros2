@@ -5,5 +5,8 @@ ROS2 interface to Neato vacuum robots
 
 # Docker
 ```bash
+# All executed from top-level directory of repo, same as this README
+docker build -f docker/operator/Dockerfile -t operator .
+docker build -f docker/robot/Dockerfile -t robot .
 docker compose -f docker/docker-compose-robot.yml up
 ```
