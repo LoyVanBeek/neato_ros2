@@ -1,4 +1,4 @@
-ARG ROS_DISTRO=humble
+ARG ROS_DISTRO=jazzy
 
 FROM ros:${ROS_DISTRO}-ros-base-jammy
 
