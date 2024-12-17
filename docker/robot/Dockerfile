@@ -25,10 +25,9 @@ RUN apt update -qq && apt install -y --no-install-recommends \
       gnupg2 \
       lsb-release \
       python3-pip \
-      python3-rosinstall \
-      python3-rosinstall-generator \
       ros-dev-tools \
       python3-argcomplete \
+      tmux \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /root/ros2_ws/src
@@ -41,14 +40,16 @@ RUN apt update -qq && apt install -y --no-install-recommends \
       ros-${ROS_DISTRO}-teleop-twist-keyboard \
     && rm -rf /var/lib/apt/lists/*
 
+# Install rmw_zenoh
+# Latest version as of writing
+RUN git clone https://github.com/ros2/rmw_zenoh.git && cd rmw_zenoh && git reset --hard dd82e84 && cd ..
+
 COPY ./neato_description /root/ros2_ws/src/neato_description
 COPY ./neato_ros2_python /root/ros2_ws/src/neato_ros2_python
 COPY ./neato_bringup /root/ros2_ws/src/neato_bringup
 
-# Prepare CycloneDDS config file
-COPY ./docker/robot/cyclonedds.xml /cyclonedds.xml
-ENV CYCLONEDDS_URI=file:///cyclonedds.xml
-ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+# Configure Zenoh
+ENV RMW_IMPLEMENTATION=rmw_zenoh_cpp
 
 WORKDIR /root/ros2_ws
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
