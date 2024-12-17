@@ -36,9 +36,9 @@ WORKDIR /root/ros2_ws/src
 
 # install ROS additional packages needed for application
 RUN apt update -qq && apt install -y --no-install-recommends \
-      ros-humble-xacro \
-      ros-humble-rmw-cyclonedds-cpp \
-      ros-humble-teleop-twist-keyboard \
+      ros-${ROS_DISTRO}-xacro \
+      ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
+      ros-${ROS_DISTRO}-teleop-twist-keyboard \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./neato_description /root/ros2_ws/src/neato_description
