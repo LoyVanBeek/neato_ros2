@@ -1,10 +1,10 @@
 ARG ROS_DISTRO=jazzy
 
-FROM ros:${ROS_DISTRO}-ros-base-jammy
+FROM ros:${ROS_DISTRO}-ros-base
 
 RUN apt update && apt-get install -y --no-install-recommends \
-        ros-${ROS_DISTRO}-desktop=0.10.0-1* \
         ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
+        ros-${ROS_DISTRO}-desktop \
         iproute2 \
         net-tools \
     && rm -rf /var/lib/apt/lists/*
