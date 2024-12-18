@@ -36,7 +36,6 @@ WORKDIR /root/ros2_ws/src
 # install ROS additional packages needed for application
 RUN apt update -qq && apt install -y --no-install-recommends \
       ros-${ROS_DISTRO}-xacro \
-      ros-${ROS_DISTRO}-rmw-cyclonedds-cpp \
       ros-${ROS_DISTRO}-teleop-twist-keyboard \
     && rm -rf /var/lib/apt/lists/*
 
