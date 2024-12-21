@@ -47,7 +47,7 @@ WORKDIR /root/zenoh_ws
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
  && apt-get update -y \
  && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
- && colcon build --symlink-install --event-handlers console_cohesion+\
+ && colcon build --event-handlers console_cohesion+ --parallel-workers 1 --executor sequential \
  && rm -rf /var/lib/apt/lists/*"
 
 RUN mkdir -p /root/ros2_ws/src
