@@ -30,9 +30,6 @@ RUN apt update -qq && apt install -y --no-install-recommends \
       tmux \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /root/ros2_ws/src
-WORKDIR /root/ros2_ws/src
-
 # install ROS additional packages needed for application
 RUN apt update -qq && apt install -y --no-install-recommends \
       ros-${ROS_DISTRO}-xacro \
@@ -41,7 +38,20 @@ RUN apt update -qq && apt install -y --no-install-recommends \
 
 # Install rmw_zenoh
 # Latest version as of writing
+
+RUN mkdir -p /root/zenoh_ws/src
+WORKDIR /root/zenoh_ws/src
 RUN git clone https://github.com/ros2/rmw_zenoh.git && cd rmw_zenoh && git reset --hard dd82e84 && cd ..
+
+WORKDIR /root/zenoh_ws
+RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
+ && apt-get update -y \
+ && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
+ && colcon build --symlink-install --event-handlers console_cohesion+\
+ && rm -rf /var/lib/apt/lists/*"
+
+RUN mkdir -p /root/ros2_ws/src
+WORKDIR /root/ros2_ws/src
 
 COPY ./neato_description /root/ros2_ws/src/neato_description
 COPY ./neato_ros2_python /root/ros2_ws/src/neato_ros2_python
