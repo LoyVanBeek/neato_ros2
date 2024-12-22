@@ -41,7 +41,7 @@ RUN apt update -qq && apt install -y --no-install-recommends \
 
 RUN mkdir -p /root/zenoh_ws/src
 WORKDIR /root/zenoh_ws/src
-RUN git clone https://github.com/ros2/rmw_zenoh.git && cd rmw_zenoh && git reset --hard dd82e84 && cd ..
+RUN git clone https://github.com/ros2/rmw_zenoh.git && cd rmw_zenoh && git reset --hard 49a34bfa1fece361b037d2895123f078d9c63d40 && cd ..
 
 WORKDIR /root/zenoh_ws
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
