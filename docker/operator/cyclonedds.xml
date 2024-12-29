@@ -5,6 +5,7 @@
             <Interfaces>
                 <NetworkInterface name="wlo1"/>
             </Interfaces>
+            <DontRoute>true</DontRoute>
         </General>
         <Discovery>
             <Peers>

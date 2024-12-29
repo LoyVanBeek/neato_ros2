@@ -11,7 +11,7 @@ services:
     stdin_open: true
     tty: true
     # Networking and IPC for ROS 2
-    network_mode: host
+    # network_mode: host
     ipc: host
     pid: host
     # Needed to display graphical applications
@@ -27,3 +27,21 @@ services:
       # Allows graphical programs in the container.
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority
+    hostname: operator-host
+    domainname: test
+    networks:
+      network:
+        ipv4_address: 192.168.178.101
+
+networks:
+  network:
+    driver: ipvlan
+    driver_opts:
+      parent: wlo1
+      ipvlan-mode: l2
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.178.0/24
+          gateway: 192.168.178.1
+          ip_range: 192.168.178.0/24

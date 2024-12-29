@@ -7,6 +7,7 @@ RUN apt update && apt-get install -y --no-install-recommends \
         ros-humble-rmw-cyclonedds-cpp \
         iproute2 \
         net-tools \
+        iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
 # Prepare CycloneDDS config file

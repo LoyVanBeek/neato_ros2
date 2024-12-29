@@ -5,6 +5,9 @@
             <Interfaces>
                 <NetworkInterface name="enu1u1u1"/>
             </Interfaces>
+            <DontRoute>true</DontRoute>
+            <AllowMulticast>false</AllowMulticast>
+            <EnableMulticastLoopback>true</EnableMulticastLoopback>
         </General>
         <Discovery>
             <Peers>
