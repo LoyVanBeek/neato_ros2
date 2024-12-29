@@ -8,4 +8,4 @@ source /opt/ros/${ROS_DISTRO}/setup.bash
 source /root/ros2_ws/install/setup.bash
 
 # Execute the command passed into this entrypoint
-exec "$@"
+/bin/bash # exec "$@"
