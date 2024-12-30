@@ -2,6 +2,7 @@ services:
   # Base image containing dependencies.
   base:
     image: neato
+    container_name: robot
     build:
       context: ..
       dockerfile: docker/robot/Dockerfile

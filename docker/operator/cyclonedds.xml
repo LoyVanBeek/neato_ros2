@@ -3,9 +3,11 @@
     <Domain id="any">
         <General>
             <Interfaces>
-                <NetworkInterface name="wlo1"/>
+                <NetworkInterface name="eth0"/>
             </Interfaces>
             <DontRoute>true</DontRoute>
+            <AllowMulticast>false</AllowMulticast>
+            <EnableMulticastLoopback>true</EnableMulticastLoopback>
         </General>
         <Discovery>
             <Peers>

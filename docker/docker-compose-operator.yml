@@ -2,6 +2,7 @@ services:
   # Base image containing dependencies.
   base:
     image: operator
+    container_name: operator
     build:
       context: ..
       dockerfile: docker/operator/Dockerfile

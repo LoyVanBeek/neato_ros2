@@ -8,6 +8,8 @@ RUN apt update && apt-get install -y --no-install-recommends \
         iproute2 \
         net-tools \
         iputils-ping \
+        netcat \
+        vim\
     && rm -rf /var/lib/apt/lists/*
 
 # Prepare CycloneDDS config file
