@@ -63,6 +63,9 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
  && colcon build --symlink-install --event-handlers console_cohesion+\
  && rm -rf /var/lib/apt/lists/*"
 
+COPY ./docker/robot/zenoh.json5 /
+ENV ZENOH_ROUTER_CONFIG_URI=/zenoh.json5
+
 # Set up entrypoint
 COPY ./docker/robot/entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]

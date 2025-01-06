@@ -14,6 +14,9 @@ services:
     network_mode: host
     ipc: host
     pid: host
+    ports:
+      - 7447:7447
+      - 8000:8000
     # Needed to display graphical applications
     privileged: true
     environment:
