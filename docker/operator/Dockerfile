@@ -7,6 +7,9 @@ RUN apt update && apt-get install -y --no-install-recommends \
         iproute2 \
         net-tools \
         tmux \
+        iputils-ping \
+        netcat-traditional \
+        vim \
     && rm -rf /var/lib/apt/lists/*
 
 # Install rmw_zenoh

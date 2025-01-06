@@ -17,6 +17,8 @@ RUN apt update -qq && apt install -y --no-install-recommends \
       wget \
       iproute2 \
       net-tools \
+      iputils-ping \
+      netcat-traditional \
     && rm -rf /var/lib/apt/lists/*
 
 # install_ros_tools
