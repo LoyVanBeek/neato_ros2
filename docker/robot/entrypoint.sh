@@ -4,9 +4,6 @@
 # Source ROS 2
 source /opt/ros/${ROS_DISTRO}/setup.bash
 
-# Source the Zenoh workspace, if built
-source /root/zenoh_ws/install/setup.bash
-
 # Source the overlay workspace, if built
 source /root/ros2_ws/install/setup.bash
 

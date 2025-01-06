@@ -38,17 +38,14 @@ RUN apt update -qq && apt install -y --no-install-recommends \
 
 # Install rmw_zenoh
 # Latest version as of writing
-
-RUN mkdir -p /root/zenoh_ws/src
-WORKDIR /root/zenoh_ws/src
-RUN git clone https://github.com/ros2/rmw_zenoh.git && cd rmw_zenoh && git reset --hard 49a34bfa1fece361b037d2895123f078d9c63d40 && cd ..
-
-WORKDIR /root/zenoh_ws
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
- && apt-get update -y \
- && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
- && colcon build --event-handlers console_cohesion+ --parallel-workers 1 --executor sequential \
- && rm -rf /var/lib/apt/lists/*"
+RUN mv /etc/apt/sources.list.d/ros2-latest.list /etc/ros2.list
+RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-latest-archive-keyring.gpg ] http://packages.ros.org/ros2-testing/ubuntu noble main" > /etc/apt/sources.list.d/ros2.list
+# temporarily as per https://docs.ros.org/en/jazzy/Installation/Testing.html#deb-testing-repository and
+# https://discourse.ros.org/t/rmw-zenoh-binaries-for-rolling-jazzy-and-humble/41395
+RUN apt update -qq && apt install -y --no-install-recommends \
+      ros-${ROS_DISTRO}-rmw-zenoh-cpp \
+    && rm -rf /var/lib/apt/lists/*
+RUN mv /etc/ros2.list /etc/apt/sources.list.d/ros2-latest.list
 
 RUN mkdir -p /root/ros2_ws/src
 WORKDIR /root/ros2_ws/src
