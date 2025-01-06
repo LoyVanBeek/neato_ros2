@@ -6,6 +6,7 @@ RUN apt update && apt-get install -y --no-install-recommends \
         ros-${ROS_DISTRO}-desktop \
         iproute2 \
         net-tools \
+        tmux \
     && rm -rf /var/lib/apt/lists/*
 
 # Install rmw_zenoh
@@ -32,6 +33,8 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
 
 COPY ./docker/operator/zenoh.json5 /
 ENV ZENOH_ROUTER_CONFIG_URI=/zenoh.json5
+
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc
 
 # Set up entrypoint
 COPY ./docker/operator/entrypoint.sh /

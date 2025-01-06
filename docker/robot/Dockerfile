@@ -66,6 +66,8 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
 COPY ./docker/robot/zenoh.json5 /
 ENV ZENOH_ROUTER_CONFIG_URI=/zenoh.json5
 
+RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc
+
 # Set up entrypoint
 COPY ./docker/robot/entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
