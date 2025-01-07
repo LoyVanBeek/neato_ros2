@@ -27,6 +27,10 @@ ENV RMW_IMPLEMENTATION=rmw_zenoh_cpp
 
 RUN mkdir -p /root/ros2_ws/src
 WORKDIR /root/ros2_ws/src
+
+COPY ./neato_description /root/ros2_ws/src/neato_description
+RUN git clone https://github.com/openrosbotix/virtual_joystick.git
+
 WORKDIR /root/ros2_ws
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
  && apt-get update -y \
