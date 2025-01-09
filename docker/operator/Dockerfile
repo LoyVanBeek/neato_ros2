@@ -19,6 +19,7 @@ RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-latest-archive-keyring.gpg ] 
 # https://discourse.ros.org/t/rmw-zenoh-binaries-for-rolling-jazzy-and-humble/41395
 RUN apt update -qq && apt install -y --no-install-recommends \
       ros-${ROS_DISTRO}-rmw-zenoh-cpp \
+      ros-${ROS_DISTRO}-teleop-twist-joy \
     && rm -rf /var/lib/apt/lists/*
 RUN mv /etc/ros2.list /etc/apt/sources.list.d/ros2-latest.list
 
@@ -29,6 +30,7 @@ RUN mkdir -p /root/ros2_ws/src
 WORKDIR /root/ros2_ws/src
 
 COPY ./neato_description /root/ros2_ws/src/neato_description
+COPY ./neato_operator /root/ros2_ws/src/neato_operator
 RUN git clone https://github.com/openrosbotix/virtual_joystick.git
 
 WORKDIR /root/ros2_ws
