@@ -46,5 +46,5 @@ RUN echo "source /root/ros2_ws/install/setup.bash" >> /root/.bashrc
 
 # Set up entrypoint
 COPY ./docker/operator/entrypoint.sh /
-COPY ./docker/operator/default.rviz /root/neato.rviz
+COPY ./docker/operator/neato.rviz /root/neato.rviz
 ENTRYPOINT [ "/entrypoint.sh" ]
