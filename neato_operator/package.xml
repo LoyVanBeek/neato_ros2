@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>neato_bringup</name>
+  <name>neato_operator</name>
   <version>0.0.0</version>
-  <description>Launch files to start the Neato robot</description>
+  <description>Launch files to (remotely) operate a Neato robot</description>
   <maintainer email="loy.vanbeek@gmail.com">loy</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>neato_ros2_python</depend>
   <depend>neato_description</depend>
+  <depend>virtual_joystick</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
