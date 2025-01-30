@@ -1,0 +1,29 @@
+joystick_teleop:
+  ros__parameters:
+    axis_angular:
+      pitch: -1
+      roll: -1
+      yaw: 2  # Right stick horizontal direction
+    axis_linear:
+      x: 3  # Right stick vertical direction
+      y: -1
+      z: -1
+    enable_button: 10  # Button saying 'RIGHT'
+    enable_turbo_button: 9  # Button saying 'LEFT'
+    scale_angular:
+      pitch: 0.0
+      roll: 0.0
+      yaw: 0.25
+    scale_angular_turbo:
+      pitch: 0.0
+      roll: 0.0
+      yaw: 1.0
+    scale_linear:
+      x: 0.25
+      y: 0.0
+      z: 0.0
+    scale_linear_turbo:
+      x: 0.5
+      y: 0.0
+      z: 0.0
+    use_sim_time: false
