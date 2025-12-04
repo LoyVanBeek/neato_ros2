@@ -6,6 +6,6 @@
     },
   },
   connect: {
-    endpoints: ["tcp/192.168.178.138:7447"],
+    endpoints: ["tcp/loy-expertbook.local:7447"],
   },
 }

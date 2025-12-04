@@ -39,14 +39,15 @@ RUN apt update -qq && apt install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install rmw_zenoh
-RUN mv /etc/apt/sources.list.d/ros2-latest.list /etc/ros2.list
-RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-latest-archive-keyring.gpg ] http://packages.ros.org/ros2-testing/ubuntu noble main" > /etc/apt/sources.list.d/ros2.list
+#RUN ls /etc/apt/sources.list.d/
+#RUN mv /etc/apt/sources.list.d/ros2.list /etc/ros2.list
+#RUN echo "deb [ signed-by=/usr/share/keyrings/ros2-latest-archive-keyring.gpg ] http://packages.ros.org/ros2-testing/ubuntu noble main" > /etc/apt/sources.list.d/ros2.list
 # temporarily as per https://docs.ros.org/en/jazzy/Installation/Testing.html#deb-testing-repository and
 # https://discourse.ros.org/t/rmw-zenoh-binaries-for-rolling-jazzy-and-humble/41395
 RUN apt update -qq && apt install -y --no-install-recommends \
       ros-${ROS_DISTRO}-rmw-zenoh-cpp \
     && rm -rf /var/lib/apt/lists/*
-RUN mv /etc/ros2.list /etc/apt/sources.list.d/ros2-latest.list
+#RUN mv /etc/ros2.list /etc/apt/sources.list.d/ros2.list
 
 RUN mkdir -p /root/ros2_ws/src
 WORKDIR /root/ros2_ws/src

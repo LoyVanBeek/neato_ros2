@@ -33,6 +33,6 @@ ament_package()
 # Install launch files.
 install(DIRECTORY
   launch
-  config
+  #  config
   DESTINATION share/${PROJECT_NAME}/
 )
