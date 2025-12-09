@@ -16,7 +16,32 @@ def generate_launch_description():
         get_package_share_directory('neato_operator'), 'config', 'virtual.yaml')
 
     return LaunchDescription([
-        IncludeLaunchDescription(
+        GroupAction(
+            actions=[
+                # push-ros-namespace to set namespace of included nodes
+                PushRosNamespace('speedlink_joy_ns'),
+                Node(
+                    package='joy',
+                    executable='joy_node',
+                    name='speedlink_joystick',
+                    output='screen'),
+                Node(
+                    package='teleop_twist_joy',
+                    executable='teleop_node',
+                    name='speedlink_joystick_teleop',
+                    output='screen',
+                    parameters=[speedlink_config_path]),
+            ]
+        ),
+
+        # Push this to a separate namespace: https://docs.ros.org/en/foxy/How-To-Guides/Launch-file-different-formats.html
+        # because now both publish to the same /joy topic but the virtual joystick needs a separate config
+        # include another launch file in the virtual_joy_ns namespace
+        GroupAction(
+            actions=[
+                # push-ros-namespace to set namespace of included nodes
+                PushRosNamespace('virtual_joy_ns'),
+                IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
                         os.path.join(
                             get_package_share_directory('virtual_joystick'),
@@ -24,35 +49,15 @@ def generate_launch_description():
                             'vjoy.launch.py'),
                     )
                 ),
-        Node(
-            package='teleop_twist_joy',
-            executable='teleop_node',
-            name='joystick_teleop',
-            output='screen',
-            parameters=[virtual_joy_config_path]),
-
-        # Push this to a separate namespace: https://docs.ros.org/en/foxy/How-To-Guides/Launch-file-different-formats.html
-        # because now both publish to the same /joy topic but the virtual joystick needs a separate config
-        # include another launch file in the virtual_joy_ns namespace
-        # GroupAction(
-        #     actions=[
-        #         # push-ros-namespace to set namespace of included nodes
-        #         PushRosNamespace('virtual_joy_ns'),
-        #         IncludeLaunchDescription(
-        #             PythonLaunchDescriptionSource(
-        #                 os.path.join(
-        #                     get_package_share_directory('virtual_joystick'),
-        #                     'launch',
-        #                     'vjoy.launch.py'),
-        #             )
-        #         ),
-        #         Node(
-        #             package='teleop_twist_joy',
-        #             executable='teleop_node',
-        #             name='virtual_joystick_teleop',
-        #             output='screen',
-        #             parameters=[virtual_joy_config_path]
-        #         ),
-        #     ]
-        # )
+                Node(
+                    package='teleop_twist_joy',
+                    executable='teleop_node',
+                    name='virtual_joystick_teleop',
+                    output='screen',
+                    parameters=[virtual_joy_config_path]
+                ),
+            ]
+        ),
+        TODO: Include a Twist Mux. OR remap output topic just to /cmd_vel since I probably won't run both...
+        https://wiki.ros.org/twist_mux
     ])

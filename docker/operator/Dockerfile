@@ -47,6 +47,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash \
 
 COPY ./docker/operator/zenoh.json5 /
 ENV ZENOH_ROUTER_CONFIG_URI=/zenoh.json5
+ENV RCUTILS_CONSOLE_OUTPUT_FORMAT="[{severity} {time}] [{name} ({file_name}:{function_name}:{line_number})]: {message}"
 
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /root/.bashrc
 RUN echo "source /root/ros2_ws/install/setup.bash" >> /root/.bashrc

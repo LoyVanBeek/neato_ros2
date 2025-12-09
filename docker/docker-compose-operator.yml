@@ -29,4 +29,5 @@ services:
       # Allows graphical programs in the container.
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority
+      - /dev/input/js0:/dev/input/js0
     command: ros2 launch neato_operator teleop.launch.py
