@@ -1,25 +1,17 @@
-TeleopTwistJoy:
+/speedlink_joy_ns/speedlink_joystick_teleop:
   ros__parameters:
     axis_angular:
-      yaw: 0
+      yaw: 3
     axis_linear:
       x: 4
     enable_button: 5
     enable_turbo_button: 7
     scale_angular:
-      pitch: 1.0
-      roll: 1.0
       yaw: 1.0
     scale_angular_turbo:
-      pitch: 1.0
-      roll: 1.0
-      yaw: 1.0
+      yaw: 2.0
     scale_linear:
       x: 1.0
-      y: 1.0
-      z: 1.0
     scale_linear_turbo:
-      x: 1.0
-      y: 1.0
-      z: 1.0
+      x: 2.0
     use_sim_time: false

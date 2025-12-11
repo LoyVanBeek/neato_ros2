@@ -1,4 +1,4 @@
-joystick_teleop:
+/virtual_joy_ns/virtual_joystick_teleop:
   ros__parameters:
     axis_angular:
       pitch: -1

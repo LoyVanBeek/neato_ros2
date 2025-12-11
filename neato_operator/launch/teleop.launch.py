@@ -58,6 +58,6 @@ def generate_launch_description():
                 ),
             ]
         ),
-        TODO: Include a Twist Mux. OR remap output topic just to /cmd_vel since I probably won't run both...
-        https://wiki.ros.org/twist_mux
+        # TODO: Include a Twist Mux. OR remap output topic just to /cmd_vel since I probably won't run both...
+        # https://wiki.ros.org/twist_mux
     ])
