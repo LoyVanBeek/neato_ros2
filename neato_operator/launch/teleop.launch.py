@@ -14,6 +14,8 @@ def generate_launch_description():
         get_package_share_directory('neato_operator'), 'config', 'speedlink.yaml')
     virtual_joy_config_path = Path(
         get_package_share_directory('neato_operator'), 'config', 'virtual.yaml')
+    twist_mux_config_path = Path(
+        get_package_share_directory('neato_operator'), 'config', 'twist_mux.yaml')
 
     return LaunchDescription([
         GroupAction(
@@ -60,4 +62,12 @@ def generate_launch_description():
         ),
         # TODO: Include a Twist Mux. OR remap output topic just to /cmd_vel since I probably won't run both...
         # https://wiki.ros.org/twist_mux
+        Node(
+            package='twist_mux',
+            executable='twist_mux',
+            name='twist_mux',
+            output='screen',
+            parameters=[twist_mux_config_path],
+            remappings=[("/cmd_vel_out", "/cmd_vel")]
+        ),
     ])

@@ -12,6 +12,7 @@
   <depend>neato_description</depend>
   <depend>virtual_joystick</depend>
   <depend>joy</depend>
+  <depend>twist_mux</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
