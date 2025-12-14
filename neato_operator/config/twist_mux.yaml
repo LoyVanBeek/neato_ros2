@@ -4,9 +4,9 @@
     topics:
       virtual:
         topic   : /virtual_joy_ns/cmd_vel
-        timeout : 0.5
+        timeout : 0.2
         priority: 1
       speedlink:
         topic   : /speedlink_joy_ns/cmd_vel
-        timeout : 0.5
+        timeout : 0.2
         priority: 2
