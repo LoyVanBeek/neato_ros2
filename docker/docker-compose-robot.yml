@@ -2,19 +2,21 @@ services:
   # Base image containing dependencies.
   base:
     image: neato
-    container_name: robot
     build:
       context: ..
       dockerfile: docker/robot/Dockerfile
       args:
-        ROS_DISTRO: humble
+        ROS_DISTRO: jazzy
     # Interactive shell
     stdin_open: true
     tty: true
     # Networking and IPC for ROS 2
-    # network_mode: host
+    network_mode: host
     ipc: host
     pid: host
+    ports:
+      - 7447:7447
+      - 8000:8000
     # Needed to display graphical applications
     privileged: true
     environment:
@@ -29,23 +31,4 @@ services:
       - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority
     devices:
       - /dev/ttyACM0
-    hostname: robot-host
-    domainname: test
-    networks:
-      network:
-        ipv4_address: 192.168.178.100
-    # command: ros2 launch neato_bringup neato.launch.py
-
-
-networks:
-  network:
-    driver: ipvlan
-    driver_opts:
-      parent: enu1u1u1
-      ipvlan-mode: l2
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.178.0/24
-          gateway: 192.168.178.1
-          ip_range: 192.168.178.0/24
+    command: ros2 launch neato_bringup neato.launch.py

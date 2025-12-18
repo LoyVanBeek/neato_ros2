@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(neato_bringup)
+project(neato_operator)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -33,6 +33,6 @@ ament_package()
 # Install launch files.
 install(DIRECTORY
   launch
-  #  config
+  config
   DESTINATION share/${PROJECT_NAME}/
 )

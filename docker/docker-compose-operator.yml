@@ -2,19 +2,23 @@ services:
   # Base image containing dependencies.
   base:
     image: operator
-    container_name: operator
+    extra_hosts:
+      - "raspberrypi-robot.local:192.168.1.114"
     build:
       context: ..
       dockerfile: docker/operator/Dockerfile
       args:
-        ROS_DISTRO: humble
+        ROS_DISTRO: jazzy
     # Interactive shell
     stdin_open: true
     tty: true
     # Networking and IPC for ROS 2
-    # network_mode: host
+    network_mode: host
     ipc: host
     pid: host
+    ports:
+      - 7447:7447
+      - 8000:8000
     # Needed to display graphical applications
     privileged: true
     environment:
@@ -23,26 +27,9 @@ services:
       - QT_X11_NO_MITSHM=1
       - NVIDIA_DRIVER_CAPABILITIES=all
       - ROS_DOMAIN_ID=66
-      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
     volumes:
       # Allows graphical programs in the container.
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority
-    hostname: operator-host
-    domainname: test
-    networks:
-      network:
-        ipv4_address: 192.168.178.101
-
-networks:
-  network:
-    driver: ipvlan
-    driver_opts:
-      parent: wlo1
-      ipvlan-mode: l2
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.178.0/24
-          gateway: 192.168.178.1
-          ip_range: 192.168.178.0/24
+      - /dev/input/js0:/dev/input/js0
+    command: ros2 launch neato_operator teleop.launch.py

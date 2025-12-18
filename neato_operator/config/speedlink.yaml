@@ -1,0 +1,17 @@
+/speedlink_joy_ns/speedlink_joystick_teleop:
+  ros__parameters:
+    axis_angular:
+      yaw: 3
+    axis_linear:
+      x: 4
+    enable_button: 5
+    enable_turbo_button: 7
+    scale_angular:
+      yaw: 1.0
+    scale_angular_turbo:
+      yaw: 2.0
+    scale_linear:
+      x: 1.0
+    scale_linear_turbo:
+      x: 2.0
+    use_sim_time: false

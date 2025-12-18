@@ -1,0 +1,12 @@
+/twist_mux:
+  ros__parameters:
+    use_stamped: false
+    topics:
+      virtual:
+        topic   : /virtual_joy_ns/cmd_vel
+        timeout : 0.2
+        priority: 1
+      speedlink:
+        topic   : /speedlink_joy_ns/cmd_vel
+        timeout : 0.2
+        priority: 2
