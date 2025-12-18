@@ -25,7 +25,11 @@ import time
 
 import serial
 
-logging.basicConfig(level=logging.INFO)
+
+logging.basicConfig(
+        level=logging.DEBUG,
+        format="[%(asctime)s][%(levelname)s](T%(thread)d)[%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+    )
 
 
 MOTOR_STATUS_FIELDS = [
@@ -111,10 +115,13 @@ class NeatoRobot(object):
             return False
 
     def read_line(self):
+        logging.debug("Readign a line...")
         raw = self._port.readline()
+        logging.debug("Read a line...")
         _ascii = raw.decode('ascii')
         stripped = _ascii.strip()
         logging.debug("'{}' -> '{}' -> '{}'".format(raw, _ascii, stripped))
+        logging.debug("Parsed line")
         return stripped
 
     def set_testmode(self, on: bool):
@@ -179,6 +186,7 @@ class NeatoRobot(object):
 
         :return: List of distances and rotation speed
         """
+        logging.debug("Starting to finish_laser_scan()")
         _ = self._port.readline().decode('utf-8')  # Read header
 
         ranges = [0] * self._laser_line_count
@@ -194,6 +202,7 @@ class NeatoRobot(object):
 
         lds_rpm = float(footer.split(',')[1])
 
+        logging.debug("Finished finish_laser_scan()")
         return ranges, lds_rpm
 
 

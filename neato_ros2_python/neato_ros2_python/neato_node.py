@@ -213,6 +213,7 @@ class NeatoNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
+    rclpy.logging.set_logger_level(rclpy.logging.LoggingSeverity.DEBUG)
 
     robot = NeatoRobot(port='/dev/ttyACM0')
 
