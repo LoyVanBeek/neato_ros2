@@ -215,8 +215,13 @@ class NeatoRobot(object):
 
 
 def main(args=None):
+    import statistics
     robot = NeatoRobot(port='/dev/ttyACM0')
 
+    durations = []
+
+    # breakpoint()
+    # break 170
     with robot.operational():
         time.sleep(1)
 
@@ -232,9 +237,11 @@ def main(args=None):
             print(motor_state)
             robot.start_laser_scan()
             end = time.time()
-            print(f"Loop took {end - start} seconds")
+            duration = end - start
+            print(f"Loop took {duration} seconds")
+            durations += [duration]
+            print(f"Median loop duration: {statistics.median(durations)}")
             time.sleep(0.1)
-
 
 if __name__ == '__main__':
     main()
