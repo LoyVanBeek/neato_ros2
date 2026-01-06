@@ -160,12 +160,15 @@ class NeatoRobot(object):
         logging.debug('Got complete header, now reading  actual motor state')
         status = {}
 
+        raw_data: bytes = bytes()
         for _ in MOTOR_STATUS_FIELDS:
             # self.logger.debug('Getting line...: ')
-            line = self.read_line()
-            # self.logger.debug(line)
-            parts = line.split(',')
-            status[parts[0]] = int(parts[1])
+            raw_data += self.read_line_raw()
+
+        text = raw_data.decode('ascii')
+        lines = text.split('\n')
+        part_pairs = [line.split(',') for line in lines if line]
+        status = {part_pair[0]: int(part_pair[1]) for part_pair in part_pairs if part_pair}
         self._motor_state = status
         return status
 
