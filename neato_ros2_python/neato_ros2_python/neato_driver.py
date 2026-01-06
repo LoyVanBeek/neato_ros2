@@ -124,6 +124,10 @@ class NeatoRobot(object):
         logging.debug("Parsed line")
         return stripped
 
+    def read_line_raw(self) -> bytes:
+        raw = self._port.readline()
+        return raw
+
     def set_testmode(self, on: bool):
         assert self.write_command('testmode {}'.format('on' if on else 'off'))
 
@@ -190,13 +194,16 @@ class NeatoRobot(object):
         _ = self._port.readline().decode('utf-8')  # Read header
 
         ranges = [0] * self._laser_line_count
+        raw_data: bytes = bytes()
 
         for expected_angle in range(self._laser_line_count):
-            scanline = self.read_line()
-            parts = scanline.split(',')
-            angle = int(parts[0])
-            distance = int(parts[1])
-            ranges[angle] = distance  # Distance millimeters
+            raw_data += self.read_line_raw()
+        _ascii = raw_data.decode('ascii')
+        stripped = _ascii.strip()
+        lines = stripped.split('\n')
+        angle_and_distances = [line.split(',') for line in lines]
+        for angle_and_distance in angle_and_distances:
+            ranges[int(angle_and_distance[0])] = int(angle_and_distance[1])  # Distance millimeters
 
         footer = self.read_line()
 
