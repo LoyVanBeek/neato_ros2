@@ -115,7 +115,7 @@ class NeatoRobot(object):
             return False
 
     def read_line(self):
-        logging.debug("Readign a line...")
+        logging.debug("Reading a line...")
         raw = self._port.readline()
         logging.debug("Read a line...")
         _ascii = raw.decode('ascii')
