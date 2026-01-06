@@ -240,7 +240,8 @@ def main(args=None):
             duration = end - start
             print(f"Loop took {duration} seconds")
             durations += [duration]
-            print(f"Median loop duration: {statistics.median(durations)}")
+            if len(durations) > 2:
+                print(f"Median loop duration: {statistics.median(durations)} (stddev {statistics.stdev(durations)}) over {len(durations)} samples")
             time.sleep(0.1)
 
 if __name__ == '__main__':
