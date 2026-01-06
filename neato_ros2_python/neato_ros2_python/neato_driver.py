@@ -115,13 +115,14 @@ class NeatoRobot(object):
             return False
 
     def read_line(self):
-        logging.debug("Reading a line...")
+        # logging.debug("Reading a line...")
         raw = self._port.readline()
-        logging.debug("Read a line...")
+        # logging.debug("Read a line...")
         _ascii = raw.decode('ascii')
         stripped = _ascii.strip()
-        logging.debug("'{}' -> '{}' -> '{}'".format(raw, _ascii, stripped))
-        logging.debug("Parsed line")
+        # logging.debug("'{}' -> '{}' -> '{}'".format(raw, _ascii, stripped))
+        logging.debug(f"{stripped}")
+        # logging.debug("Parsed line")
         return stripped
 
     def read_line_raw(self) -> bytes:
@@ -222,6 +223,7 @@ def main(args=None):
         first = True
 
         while True:
+            start = time.time()
             if not first:
                 laser_ranges, _ = robot.get_laser_scan()
                 print(laser_ranges)
@@ -229,6 +231,8 @@ def main(args=None):
             motor_state = robot.get_motors()
             print(motor_state)
             robot.start_laser_scan()
+            end = time.time()
+            print(f"Loop took {end - start} seconds")
             time.sleep(0.1)
 
 
