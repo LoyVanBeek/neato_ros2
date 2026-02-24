@@ -22,4 +22,9 @@ def generate_launch_description():
               executable='neato_node',
               name='neato_node',
               output='screen'),
+        Node(
+              package='usb_cam',
+              executable='usb_cam_node_exe',
+              name='usb_cam_node',
+              output='screen'),
       ])

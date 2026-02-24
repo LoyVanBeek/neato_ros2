@@ -36,6 +36,7 @@ RUN apt update -qq && apt install -y --no-install-recommends \
 RUN apt update -qq && apt install -y --no-install-recommends \
       ros-${ROS_DISTRO}-xacro \
       ros-${ROS_DISTRO}-teleop-twist-keyboard \
+      ros-${ROS_DISTRO}-usb-cam \
     && rm -rf /var/lib/apt/lists/*
 
 # Install rmw_zenoh

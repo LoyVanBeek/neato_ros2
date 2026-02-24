@@ -31,4 +31,5 @@ services:
       - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority
     devices:
       - /dev/ttyACM0
+      - /dev/video0
     command: ros2 launch neato_bringup neato.launch.py
