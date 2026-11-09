@@ -6,6 +6,9 @@
     },
   },
   connect: {
-    endpoints: ["tcp/loy-expertbook.local:7447"],
+    endpoints: [
+        "tcp/loy-expertbook.local:7447",
+        "tcp/ubuntu1404-65.local:7447"
+    ],
   },
 }
