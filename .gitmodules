@@ -1,0 +1,3 @@
+[submodule "steer_to_detection"]
+	path = steer_to_detection
+	url = git@github.com:LoyVanBeek/steer_to_detection.git

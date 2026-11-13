@@ -11,6 +11,8 @@
 
   <depend>neato_ros2_python</depend>
   <depend>neato_description</depend>
+  <depend>usb_cam</depend>
+  <depend>steer_to_detection</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

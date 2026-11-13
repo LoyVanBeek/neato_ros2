@@ -37,7 +37,23 @@ RUN apt update -qq && apt install -y --no-install-recommends \
       ros-${ROS_DISTRO}-xacro \
       ros-${ROS_DISTRO}-teleop-twist-keyboard \
       ros-${ROS_DISTRO}-usb-cam \
+      ros-${ROS_DISTRO}-vision-msgs \
     && rm -rf /var/lib/apt/lists/*
+
+# Rust toolchain for the ros2_rust (ament_cargo) packages. Pinned for
+# reproducibility; bump together with the Cargo.lock of the rust packages.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain 1.99.1 -y
+ENV PATH=/root/.cargo/bin:$PATH
+
+# libclang is needed by bindgen while building rclrs
+RUN apt update -qq && apt install -y --no-install-recommends \
+      libclang-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# colcon plugins that let colcon build ament_cargo (rust) packages
+RUN pip3 install --break-system-packages \
+      git+https://github.com/colcon/colcon-cargo.git \
+      git+https://github.com/colcon/colcon-ros-cargo.git
 
 # Install rmw_zenoh
 #RUN ls /etc/apt/sources.list.d/
@@ -56,6 +72,7 @@ WORKDIR /root/ros2_ws/src
 COPY ./neato_description /root/ros2_ws/src/neato_description
 COPY ./neato_ros2_python /root/ros2_ws/src/neato_ros2_python
 COPY ./neato_bringup /root/ros2_ws/src/neato_bringup
+COPY ./steer_to_detection /root/ros2_ws/src/steer_to_detection
 
 # Configure Zenoh
 ENV RMW_IMPLEMENTATION=rmw_zenoh_cpp

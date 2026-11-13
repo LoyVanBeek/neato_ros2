@@ -27,4 +27,9 @@ def generate_launch_description():
               executable='usb_cam_node_exe',
               name='usb_cam_node',
               output='screen'),
+        Node(
+              package='steer_to_detection',
+              executable='steer_to_detection',
+              name='steer_to_detection',
+              output='screen'),
       ])
